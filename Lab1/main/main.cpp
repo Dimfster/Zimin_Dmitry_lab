@@ -59,21 +59,21 @@ void AddPipeline(vector<Papeline>& pipelines)
     cout << "Введите название трубы:" << endl;
     cin >> pipeline.name;
 
-    cout << "Введите длину трубы:" << endl;
-    cin >> pipeline.length;
+    cout << "Введите длину трубы(м):" << endl;
+    pipeline.length = GetCorrectNumber(0, 100000000);
 
-    cout << "Введите диаметр трубы:" << endl;
-    cin >> pipeline.diameter;
+    cout << "Введите диаметр трубы(мм):" << endl;
+    pipeline.length = GetCorrectNumber(0, 1400);
 
     cout << "Введите состояние трубы:(0 - в ремонте; 1 - в эксплуатации)" << endl;
-    cin >> pipeline.in_repair;
+    pipeline.in_repair = GetCorrectNumber(0, 1);
 
     pipelines.emplace_back(pipeline);
 
 
 }
 
-void AddCopmressorStation()
+void AddCopmressorStation(vector<Compressor_station>& stations)
 {
     ClearCMD();
     Compressor_station station;
@@ -81,15 +81,15 @@ void AddCopmressorStation()
     cin >> station.name;
 
     cout << "Введите кол-во цехов:" << endl;
-    cin >> station.number_of_workshops;
+    station.number_of_workshops = GetCorrectNumber(0, 10);
 
     cout << "Введите кол-во работающих цехов" << endl;
-    cin >> station.active_workshops;
+    station.active_workshops = GetCorrectNumber(0, station.number_of_workshops);
 
     cout << "Введите тип станции(A, B, C)" << endl;
     cin >> station.type;
 
-
+    stations.emplace_back(station);
 
 }
 
@@ -103,7 +103,7 @@ void ViewComponents(vector<T>& vector)
         vector[i].ShowInfo();
     }
     cout << "Для выхода нажмите Enter" << endl;
-    Sleep(1000);
+    Sleep(3000);
  
 }
 
@@ -193,7 +193,7 @@ int main()
             break;
         }
         case 2: {
-            AddCopmressorStation();
+            AddCopmressorStation(stations);
             break;
         }
         case 3: {
