@@ -1,7 +1,4 @@
-﻿#include <iostream>
-#include <fstream>
-
-#include "Pipeline.h"
+﻿#include "Pipe.h"
 #include "Compressor_station.h"
 
 using namespace std;
@@ -19,11 +16,11 @@ void ViewComponents(vector<T>& vector)
 
 
 
-void View(vector<Pipeline>& pipelines, vector<Compressor_station>& stations)
+void View(vector<Pipe>& pipes, vector<Compressor_station>& stations)
 {
     
     while (1) {
-        ClearCMD();
+        clear;
         cout << "0. Назад\n" <<
             "1. Список труб\n" <<
             "2. Список КС" << endl;
@@ -31,15 +28,15 @@ void View(vector<Pipeline>& pipelines, vector<Compressor_station>& stations)
 
         switch (GetCorrectNumber(0,2)) {
         case 1: {
-            ClearCMD();
-            ViewComponents<Pipeline>(pipelines);
+            clear;
+            ViewComponents<Pipe>(pipes);
             cout << "Нажмите любую клавишу" << endl;
             string x;
             cin >> x;
             break;
         }
         case 2: {
-            ClearCMD();
+            clear;
             ViewComponents<Compressor_station>(stations);
             cout << "Нажмите любую клавишу" << endl;
             string x;
@@ -57,22 +54,22 @@ void View(vector<Pipeline>& pipelines, vector<Compressor_station>& stations)
 
 
 
-void EditPipeline(vector<Pipeline>& pipelines)
+void EditPipeline(vector<Pipe>& pipes)
 {
-    if (pipelines.size()) {
-        ClearCMD();
+    if (pipes.size()) {
+        clear;
         cout << "Список труб:\n";
-        ViewComponents(pipelines);
+        ViewComponents(pipes);
         cout << "Выберете редактируемую трубу:";
-        int number = GetCorrectNumber(1, pipelines.size());
-        pipelines[number - 1].Edit();
+        int number = GetCorrectNumber(1, pipes.size());
+        pipes[number - 1].Edit();
     }
 }
 
 
 void EditCopressorStation(vector<Compressor_station>& stations) {
     if (stations.size()) {
-        ClearCMD();
+        clear;
         cout << "Список станций:\n";
         ViewComponents(stations);
         cout << "Выберете редактируемую станцию:";
@@ -82,13 +79,24 @@ void EditCopressorStation(vector<Compressor_station>& stations) {
 }
 
 
-void SaveConfiguration(){
-
+void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations){
+    ofstream file;
+    file.open("data.txt", ios::out);
+    for (int i = 0; i < pipes.size(); i++) {
+        file.write((char*)&pipes[i], sizeof(Pipe));
+    }
+    file.close();
 }
 
 
-void LoadConfiguration() {
+void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations) {
 
+    ifstream file;
+    file.open("data.txt", ios::in);
+    Pipe pipe;
+    while (file.read((char*)& pipe, sizeof(Pipe))) {
+        pipes.emplace_back(pipe);
+    }
 }
 
 
@@ -97,12 +105,12 @@ int main()
 {
     setlocale(LC_ALL, "RU");
 
-    vector<Pipeline> pipelines;
+    vector<Pipe> pipes;
     vector<Compressor_station> stations;
 
 
     while (1) {
-        ClearCMD();
+        clear;
         cout << "\n1. Добавить трубу\n" <<
             "2. Добавить КС\n" <<
             "3. Просмотр всех объектов\n" <<
@@ -116,21 +124,23 @@ int main()
         {
 
         case 1: {
-            Pipeline pipeline;
-            pipelines.emplace_back(pipeline);
+            Pipe pipe;
+            pipe.WhiteInfo();
+            pipes.emplace_back(pipe);
             break;
         }
         case 2: {
             Compressor_station station;
+            station.WhiteInfo();
             stations.emplace_back(station);
             break;
         }
         case 3: {
-            View(pipelines, stations);
+            View(pipes, stations);
             break;
         }
         case 4: {
-            EditPipeline(pipelines);
+            EditPipeline(pipes);
             break;
         }
         case 5: {
@@ -138,15 +148,13 @@ int main()
             break;
         }
         case 6: {
-            SaveConfiguration();
+            SaveConfiguration(pipes, stations);
             break;
-
         }
 
         case 7: {
-            LoadConfiguration();
+            LoadConfiguration(pipes, stations);
             break;
-
         }
 
         case 0: {

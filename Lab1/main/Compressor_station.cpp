@@ -2,7 +2,14 @@
 
 
 Compressor_station::Compressor_station() {
-    ClearCMD();
+    name = "Non";
+    number_of_workshops = 0;
+    active_workshops = 0;
+    type = "No";
+}
+
+void Compressor_station::WhiteInfo() {
+    clear;
 
     cout << "Введите название КС:" << endl;
     cin >> name;
@@ -25,7 +32,7 @@ void Compressor_station::ShowInfo() {
 
 void Compressor_station::Edit()
 {
-    ClearCMD();
+    clear;
     ShowInfo();
     cout << "Изменить кол-во рабочих цехов:" << endl;
     active_workshops = GetCorrectNumber(0, number_of_workshops);

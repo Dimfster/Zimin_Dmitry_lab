@@ -1,10 +1,10 @@
 #pragma once
+#include <iostream>
+#include <fstream>
+#include <vector>
 #include <Windows.h>
 
-
-inline void ClearCMD() {
-    system("cls"); // дл€ очистки коммандной строки
-}
+#define clear system("cls");
 
 
 
@@ -16,7 +16,6 @@ T1 GetCorrectNumber(T1 min, T2 max)
         || std::cin.peek() != '\n'	
         || x < min || x > max)		
     {
-        std::cin.clear();
         std::cin.ignore(10000, '\n');
         std::cout << "¬ведите число от " << min << " до " << max << std::endl;
     }

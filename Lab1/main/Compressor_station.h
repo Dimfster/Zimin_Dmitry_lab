@@ -15,6 +15,8 @@ struct Compressor_station {
 
     Compressor_station();
 
+    void WhiteInfo();
+
     void ShowInfo();
 
     void Edit();

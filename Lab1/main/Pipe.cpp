@@ -1,7 +1,16 @@
-#include "Pipeline.h"
+#include "Pipe.h"
 
-Pipeline::Pipeline() {
-    ClearCMD();
+
+
+Pipe::Pipe() {
+    name = "Non";
+    length = 0.0;
+    diameter = 0;
+    in_repair = false;
+}
+
+void Pipe::WhiteInfo() {
+    clear;
     cout << "Введите название трубы:" << endl;
     cin >> name;
 
@@ -18,23 +27,25 @@ Pipeline::Pipeline() {
     else {
         in_repair = false;
     }
-
 }
 
-void Pipeline::ShowInfo() {
-    cout << "Труба " << name << "; Длина: " << length << "; Диаметр: " << diameter 
+
+void Pipe::ShowInfo() {
+    cout << "Труба " << name << "; Длина: " << length << "; Диаметр: " << diameter
         << "; Состояние:(0 - в ремонте, 1 - в эксплуатации): " << in_repair << endl;
 }
 
 
-void Pipeline::Edit()
+void Pipe::Edit()
 {
-    ClearCMD();
+    clear;
     ShowInfo();
     cout << "Изменить состояние трубы?(0 - нет, 1 - да)" << endl;
     int answer = GetCorrectNumber(0, 1);
     if (answer) {
         in_repair = !in_repair;
     }
-            
+
 }
+
+
