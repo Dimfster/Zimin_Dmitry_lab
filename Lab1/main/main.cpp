@@ -1,42 +1,14 @@
 ﻿#include <iostream>
 #include <fstream>
-#include <vector>
-#include <windows.h>
 
-#include <stdio.h> // для очистки коммандной строки
+#include "Pipeline.h"
+
+
+
 
 using namespace std;
 
-void ClearCMD() {
-    system("cls"); // для очистки коммандной строки
-}
 
-
-template <typename T>
-T GetCorrectNumber(T min, T max)
-{
-    T x;
-    while ((cin >> x).fail()	// check type
-        || cin.peek() != '\n'	// is buffer empty (int/float check)
-        || x < min || x > max)		// check range
-    {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        std::cout << "Введите число от " << min << " до " << max << endl;
-    }
-    return x;
-}
-
-struct Papeline {
-    string name;
-    float length;
-    int diameter;
-    bool in_repair;
-
-    void ShowInfo() {
-        cout << "Труба " << name << "; Длина: " << length << "; Диаметр: " << diameter << "; Состояние:(0 - в ремонте, 1 - в эксплуатации): " << in_repair << endl;
-    }
-};
 
 
 struct Compressor_station {
@@ -46,30 +18,15 @@ struct Compressor_station {
     string type;
 
     void ShowInfo() {
-        cout << "КС " << name << "; Кол-во цехов: " << number_of_workshops << "; Рабочие цеха: " << active_workshops << "Тип: " << type << endl;
+        cout << "КС " << name << "; Кол-во цехов: " << number_of_workshops << "; Рабочие цеха: " << active_workshops << "; Тип: " << type << endl;
     }
 };
 
 
 
-void AddPipeline(vector<Papeline>& pipelines) 
+void AddPipeline(vector<Pipeline>& pipelines) 
 {
     ClearCMD();
-    Papeline pipeline;
-    cout << "Введите название трубы:" << endl;
-    cin >> pipeline.name;
-
-    cout << "Введите длину трубы(м):" << endl;
-    pipeline.length = GetCorrectNumber(0, 100000000);
-
-    cout << "Введите диаметр трубы(мм):" << endl;
-    pipeline.length = GetCorrectNumber(0, 1400);
-
-    cout << "Введите состояние трубы:(0 - в ремонте; 1 - в эксплуатации)" << endl;
-    pipeline.in_repair = GetCorrectNumber(0, 1);
-
-    pipelines.emplace_back(pipeline);
-
 
 }
 
@@ -97,19 +54,15 @@ void AddCopmressorStation(vector<Compressor_station>& stations)
 template <typename T>
 void ViewComponents(vector<T>& vector)
 {
-    ClearCMD();
     for (int i = 0; i < vector.capacity(); i++) {
         cout << i+1 << ". ";
         vector[i].ShowInfo();
-    }
-    cout << "Для выхода нажмите Enter" << endl;
-    Sleep(3000);
- 
+    } 
 }
 
 
 
-void View(vector<Papeline>& pipelines, vector<Compressor_station>& stations)
+void View(vector<Pipeline>& pipelines, vector<Compressor_station>& stations)
 {
     
     while (1) {
@@ -121,11 +74,19 @@ void View(vector<Papeline>& pipelines, vector<Compressor_station>& stations)
 
         switch (GetCorrectNumber(0,2)) {
         case 1: {
-            ViewComponents<Papeline>(pipelines);
+            ClearCMD();
+            ViewComponents<Pipeline>(pipelines);
+            cout << "Нажмите любую клавишу" << endl;
+            string x;
+            cin >> x;
             break;
         }
         case 2: {
+            ClearCMD();
             ViewComponents<Compressor_station>(stations);
+            cout << "Нажмите любую клавишу" << endl;
+            string x;
+            cin >> x;
             break;
         }
 
@@ -133,20 +94,22 @@ void View(vector<Papeline>& pipelines, vector<Compressor_station>& stations)
             return;
         }
 
-
         }
     }
-    
-
-
 }
 
 
 
-void EditPipeline()
+void EditPipeline(vector<Pipeline>& pipelines)
 {
-
-
+    if (pipelines.size()) {
+        ClearCMD();
+        cout << "Список труб:\n";
+        ViewComponents(pipelines);
+        cout << "Выберете редактируемую трубу:";
+        int number = GetCorrectNumber(0, pipelines.size());
+        pipelines[number].Edit();
+    }
 }
 
 
@@ -170,7 +133,7 @@ int main()
 {
     setlocale(LC_ALL, "RU");
 
-    vector<Papeline> pipelines;
+    vector<Pipeline> pipelines;
     vector<Compressor_station> stations;
 
 
@@ -189,7 +152,8 @@ int main()
         {
 
         case 1: {
-            AddPipeline(pipelines);
+            Pipeline pipeline;
+            pipelines.emplace_back(pipeline);
             break;
         }
         case 2: {
@@ -201,7 +165,7 @@ int main()
             break;
         }
         case 4: {
-            EditPipeline();
+            EditPipeline(pipelines);
             break;
         }
         case 5: {
@@ -231,8 +195,6 @@ int main()
 
 
         }
-
-
     }
 
     return 0;
