@@ -127,10 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Compressor_station.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Compressor_station.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="Utilites.h" />
   </ItemGroup>

@@ -2,53 +2,10 @@
 #include <fstream>
 
 #include "Pipeline.h"
-
-
-
+#include "Compressor_station.h"
 
 using namespace std;
 
-
-
-
-struct Compressor_station {
-    string name;
-    int number_of_workshops;
-    int active_workshops;
-    string type;
-
-    void ShowInfo() {
-        cout << "КС " << name << "; Кол-во цехов: " << number_of_workshops << "; Рабочие цеха: " << active_workshops << "; Тип: " << type << endl;
-    }
-};
-
-
-
-void AddPipeline(vector<Pipeline>& pipelines) 
-{
-    ClearCMD();
-
-}
-
-void AddCopmressorStation(vector<Compressor_station>& stations)
-{
-    ClearCMD();
-    Compressor_station station;
-    cout << "Введите название КС:" << endl;
-    cin >> station.name;
-
-    cout << "Введите кол-во цехов:" << endl;
-    station.number_of_workshops = GetCorrectNumber(0, 10);
-
-    cout << "Введите кол-во работающих цехов" << endl;
-    station.active_workshops = GetCorrectNumber(0, station.number_of_workshops);
-
-    cout << "Введите тип станции(A, B, C)" << endl;
-    cin >> station.type;
-
-    stations.emplace_back(station);
-
-}
 
 
 template <typename T>
@@ -107,14 +64,21 @@ void EditPipeline(vector<Pipeline>& pipelines)
         cout << "Список труб:\n";
         ViewComponents(pipelines);
         cout << "Выберете редактируемую трубу:";
-        int number = GetCorrectNumber(0, pipelines.size());
-        pipelines[number].Edit();
+        int number = GetCorrectNumber(1, pipelines.size());
+        pipelines[number - 1].Edit();
     }
 }
 
 
-void EditCopressorStation() {
-
+void EditCopressorStation(vector<Compressor_station>& stations) {
+    if (stations.size()) {
+        ClearCMD();
+        cout << "Список станций:\n";
+        ViewComponents(stations);
+        cout << "Выберете редактируемую станцию:";
+        int number = GetCorrectNumber(1, stations.size());
+        stations[number - 1].Edit();
+    }
 }
 
 
@@ -157,7 +121,8 @@ int main()
             break;
         }
         case 2: {
-            AddCopmressorStation(stations);
+            Compressor_station station;
+            stations.emplace_back(station);
             break;
         }
         case 3: {
@@ -169,7 +134,7 @@ int main()
             break;
         }
         case 5: {
-            EditCopressorStation();
+            EditCopressorStation(stations);
             break;
         }
         case 6: {
@@ -188,11 +153,6 @@ int main()
             return 0;
 
         }
-        default: {
-            cout << "Неизвестное действие. Введите корректное" << endl;
-            break;
-        }
-
 
         }
     }
