@@ -8,7 +8,7 @@ using namespace std;
 template <typename T>
 void ViewComponents(vector<T>& vector)
 {
-    for (int i = 0; i < vector.capacity(); i++) {
+    for (int i = 0; i < vector.size(); i++) {
         cout << i+1 << ". ";
         vector[i].ShowInfo();
     } 
@@ -81,9 +81,15 @@ void EditCopressorStation(vector<Compressor_station>& stations) {
 
 void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations){
     ofstream file;
-    file.open("data.txt", ios::out);
+    file.open("pipe_data.txt", ios::out);
     for (int i = 0; i < pipes.size(); i++) {
-        file.write((char*)&pipes[i], sizeof(Pipe));
+        pipes[i].SaveInfo(file);
+    }
+    file.close();
+
+    file.open("KC_data.txt", ios::out);
+    for (int i = 0; i < stations.size(); i++) {
+        stations[i].SaveInfo(file);
     }
     file.close();
 }
@@ -92,11 +98,37 @@ void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
 void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations) {
 
     ifstream file;
-    file.open("data.txt", ios::in);
-    Pipe pipe;
-    while (file.read((char*)& pipe, sizeof(Pipe))) {
-        pipes.emplace_back(pipe);
+    file.open("pipe_data.txt", ios::in);
+    string name_p;
+    float length;
+    int diameter;
+    bool in_repair;
+    while (!file.eof()) {
+        file >> name_p;
+        file >> length;
+        file >> diameter;
+        file >> in_repair;
+        Pipe pipe(name_p, length, diameter, in_repair);
+        pipes.push_back(pipe);
     }
+    pipes.pop_back();
+    file.close();
+
+    file.open("KC_data.txt", ios::in);
+    string name_kc;
+    int number_of_workshops;
+    int active_workshops;
+    string type;
+    while (!file.eof()) {
+        file >> name_kc;
+        file >> number_of_workshops;
+        file >> active_workshops;
+        file >> type;
+        Compressor_station station(name_kc, number_of_workshops, active_workshops, type);
+        stations.push_back(station);
+    }
+    stations.pop_back();
+    file.close();
 }
 
 

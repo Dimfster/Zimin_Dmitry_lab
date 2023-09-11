@@ -12,12 +12,15 @@ struct Pipe {
     bool in_repair;
 
     Pipe();
+    Pipe(string name, float length, int diameter, bool in_repair);
 
     void WhiteInfo();
 
     void ShowInfo();
 
     void Edit();
+
+    void SaveInfo(ofstream& file);
 
 };
 

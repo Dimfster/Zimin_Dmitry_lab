@@ -8,6 +8,14 @@ Compressor_station::Compressor_station() {
     type = "No";
 }
 
+
+Compressor_station::Compressor_station(string name, int number_of_workshops, int active_workshops, string type) {
+    this->name = name;
+    this->number_of_workshops = number_of_workshops;
+    this->active_workshops = active_workshops;
+    this->type = type;
+}
+
 void Compressor_station::WhiteInfo() {
     clear;
 
@@ -37,3 +45,12 @@ void Compressor_station::Edit()
     cout << "Изменить кол-во рабочих цехов:" << endl;
     active_workshops = GetCorrectNumber(0, number_of_workshops);
 }
+
+
+void Compressor_station::SaveInfo(ofstream& file)
+{
+    if (file.is_open()) {
+        file << name << " " << number_of_workshops << " " << active_workshops << " " << type << endl;
+    }
+}
+

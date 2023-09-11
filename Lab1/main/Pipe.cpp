@@ -1,12 +1,19 @@
 #include "Pipe.h"
 
 
-
 Pipe::Pipe() {
     name = "Non";
     length = 0.0;
     diameter = 0;
     in_repair = false;
+}
+
+
+Pipe::Pipe(string name, float length, int diameter, bool in_repair) {
+    this->name = name;
+    this->length = length;
+    this->diameter = diameter;
+    this->in_repair = in_repair;
 }
 
 void Pipe::WhiteInfo() {
@@ -46,6 +53,12 @@ void Pipe::Edit()
         in_repair = !in_repair;
     }
 
+}
+
+void Pipe::SaveInfo(ofstream& file) {
+    if (file.is_open()) {
+        file << name << " " << length << " " << diameter << " " << in_repair << endl;
+    }
 }
 
 
