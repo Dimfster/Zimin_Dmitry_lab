@@ -5,6 +5,7 @@
 #include <vector>
 #include <Windows.h>
 #include <conio.h>
+#include <sstream>
 
 
 #define CLEAR system("cls");

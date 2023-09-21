@@ -21,6 +21,7 @@ void Compressor_station::WhiteInfo() {
     CLEAR;
 
     cout << "Введите название КС:" << endl;
+    cin.ignore(1000000, '\n');
     getline(cin, name);
 
     cout << "Введите кол-во цехов:" << endl;
@@ -53,7 +54,7 @@ void Compressor_station::Edit()
 void Compressor_station::SaveInfo(ofstream& file)
 {
     if (file.is_open()) {
-        file << name << " " << number_of_workshops << " " << active_workshops << " " << type << endl;
+        file << name << ";" << number_of_workshops << ";" << active_workshops << ";" << type << ";" << endl;
     }
 }
 

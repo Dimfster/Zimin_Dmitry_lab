@@ -62,7 +62,7 @@ void Pipe::Edit()
 // Сохраниние данных трубы в файл
 void Pipe::SaveInfo(ofstream& file) {
     if (file.is_open()) {
-        file << name << " " << length << " " << diameter << " " << in_repair << endl;
+        file << name << ";" << length << ";" << diameter << ";" << in_repair <<";" << endl;
     }
 }
 

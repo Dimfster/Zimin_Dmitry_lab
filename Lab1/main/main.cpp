@@ -144,15 +144,24 @@ void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
     float length;
     int diameter;
     bool in_repair;
-    while (!file.eof()) {
-        file >> name_p;
-        file >> length;
-        file >> diameter;
-        file >> in_repair;
+
+    string str;
+
+    while (getline(file, str)) {
+        istringstream str_stream(str);
+        string element;
+        int count = 0;
+        while (getline(str_stream, element, ';')){
+            if (count == 0) name_p = element;
+            if (count == 1) length = stod(element);
+            if (count == 2) diameter = stoi(element);
+            if (count == 3) in_repair = stoi(element);
+            count++;
+        }
+
         Pipe pipe(name_p, length, diameter, in_repair);
         pipes.push_back(pipe);
     }
-    pipes.pop_back();
     file.close();
 
 
@@ -161,18 +170,26 @@ void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
     int number_of_workshops;
     int active_workshops;
     string type;
-    while (!file.eof()) {
-        file >> name_kc;
-        file >> number_of_workshops;
-        file >> active_workshops;
-        file >> type;
+
+
+    while (getline(file, str)){
+        istringstream str_stream(str);
+        string element;
+        int count = 0;
+        while (getline(str_stream, element, ';')) {
+            if (count == 0) name_kc = element;
+            if (count == 1) number_of_workshops = stoi(element);
+            if (count == 2) active_workshops = stoi(element);
+            if (count == 3) type = element;
+            count++;
+        }
         Compressor_station station(name_kc, number_of_workshops, active_workshops, type);
         stations.push_back(station);
     }
-    stations.pop_back();
     file.close();
 
     cout << "Данные загружены!\nНажмите любую клавишу" << endl;
+
     while (true)
     {
         if (_kbhit())
