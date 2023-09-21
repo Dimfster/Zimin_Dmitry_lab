@@ -74,6 +74,17 @@ void EditPipeline(vector<Pipe>& pipes)
         int number = GetCorrectNumber(1, pipes.size());
         pipes[number - 1].Edit();
     }
+    else {
+        cout << "Нет доступных труб!" <<
+            "Нажмите любую клавишу" << endl;
+        while (true)
+        {
+            if (_kbhit())
+            {
+                break;
+            }
+        }
+    }
 }
 
 // Меню выбора редактируемой КС
@@ -85,6 +96,17 @@ void EditCopressorStation(vector<Compressor_station>& stations) {
         cout << "Выберете редактируемую станцию:";
         int number = GetCorrectNumber(1, stations.size());
         stations[number - 1].Edit();
+    }
+    else {
+        cout << "Нет доступных КС!" <<
+            "Нажмите любую клавишу" << endl;
+        while (true)
+        {
+            if (_kbhit())
+            {
+                break;
+            }
+        }
     }
 }
 
@@ -102,6 +124,15 @@ void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
         stations[i].SaveInfo(file);
     }
     file.close();
+
+    cout << "Успешно сохранено!\nНажмите любую клавишу" << endl;
+    while (true)
+    {
+        if (_kbhit())
+        {
+            break;
+        }
+    }
 }
 
 // Загрузка конфигурации
@@ -140,6 +171,15 @@ void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
     }
     stations.pop_back();
     file.close();
+
+    cout << "Данные загружены!\nНажмите любую клавишу" << endl;
+    while (true)
+    {
+        if (_kbhit())
+        {
+            break;
+        }
+    }
 }
 
 
