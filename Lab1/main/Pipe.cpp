@@ -1,6 +1,7 @@
 #include "Pipe.h"
 
 
+// Конструктор трубы
 Pipe::Pipe() {
     name = "Non";
     length = 0.0;
@@ -8,7 +9,7 @@ Pipe::Pipe() {
     in_repair = false;
 }
 
-
+// Конструктор трубы для загрузки
 Pipe::Pipe(string name, float length, int diameter, bool in_repair) {
     this->name = name;
     this->length = length;
@@ -16,10 +17,13 @@ Pipe::Pipe(string name, float length, int diameter, bool in_repair) {
     this->in_repair = in_repair;
 }
 
+// Ввод информации о трубе
 void Pipe::WhiteInfo() {
-    clear;
+    CLEAR;
+
     cout << "Введите название трубы:" << endl;
-    cin >> name;
+    cin.ignore(1000000, '\n');
+    getline(cin, name);
 
     cout << "Введите длину трубы(м):" << endl;
     length = GetCorrectNumber(0.0, 100000000);
@@ -36,16 +40,16 @@ void Pipe::WhiteInfo() {
     }
 }
 
-
+// Просмотр информации трубы
 void Pipe::ShowInfo() {
     cout << "Труба " << name << "; Длина: " << length << "; Диаметр: " << diameter
         << "; Состояние:(0 - в ремонте, 1 - в эксплуатации): " << in_repair << endl;
 }
 
-
+// Редактирование трубы
 void Pipe::Edit()
 {
-    clear;
+    CLEAR;
     ShowInfo();
     cout << "Изменить состояние трубы?(0 - нет, 1 - да)" << endl;
     int answer = GetCorrectNumber(0, 1);
@@ -55,6 +59,7 @@ void Pipe::Edit()
 
 }
 
+// Сохраниние данных трубы в файл
 void Pipe::SaveInfo(ofstream& file) {
     if (file.is_open()) {
         file << name << " " << length << " " << diameter << " " << in_repair << endl;

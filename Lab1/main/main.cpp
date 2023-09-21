@@ -4,7 +4,7 @@
 using namespace std;
 
 
-
+// Показывает все компоненты вектора
 template <typename T>
 void ViewComponents(vector<T>& vector)
 {
@@ -15,12 +15,12 @@ void ViewComponents(vector<T>& vector)
 }
 
 
-
+// Показывает меню просмотра труб и станций
 void View(vector<Pipe>& pipes, vector<Compressor_station>& stations)
 {
     
     while (1) {
-        clear;
+        CLEAR;
         cout << "0. Назад\n" <<
             "1. Список труб\n" <<
             "2. Список КС" << endl;
@@ -28,19 +28,29 @@ void View(vector<Pipe>& pipes, vector<Compressor_station>& stations)
 
         switch (GetCorrectNumber(0,2)) {
         case 1: {
-            clear;
+            CLEAR
             ViewComponents<Pipe>(pipes);
             cout << "Нажмите любую клавишу" << endl;
-            string x;
-            cin >> x;
+            while (true)
+            {
+                if (_kbhit())
+                {
+                    break;
+                }
+            }
             break;
         }
         case 2: {
-            clear;
+            CLEAR;
             ViewComponents<Compressor_station>(stations);
             cout << "Нажмите любую клавишу" << endl;
-            string x;
-            cin >> x;
+            while (true)
+            {
+                if (_kbhit())
+                {
+                    break;
+                }
+            }
             break;
         }
 
@@ -53,11 +63,11 @@ void View(vector<Pipe>& pipes, vector<Compressor_station>& stations)
 }
 
 
-
+// Меню выбора редактируемой трубы 
 void EditPipeline(vector<Pipe>& pipes)
 {
     if (pipes.size()) {
-        clear;
+        CLEAR;
         cout << "Список труб:\n";
         ViewComponents(pipes);
         cout << "Выберете редактируемую трубу:";
@@ -66,10 +76,10 @@ void EditPipeline(vector<Pipe>& pipes)
     }
 }
 
-
+// Меню выбора редактируемой КС
 void EditCopressorStation(vector<Compressor_station>& stations) {
     if (stations.size()) {
-        clear;
+        CLEAR;
         cout << "Список станций:\n";
         ViewComponents(stations);
         cout << "Выберете редактируемую станцию:";
@@ -78,7 +88,7 @@ void EditCopressorStation(vector<Compressor_station>& stations) {
     }
 }
 
-
+// Сохрание конфигурации
 void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations){
     ofstream file;
     file.open("pipe_data.txt", ios::out);
@@ -94,7 +104,7 @@ void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
     file.close();
 }
 
-
+// Загрузка конфигурации
 void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations) {
 
     ifstream file;
@@ -114,6 +124,7 @@ void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
     pipes.pop_back();
     file.close();
 
+
     file.open("KC_data.txt", ios::in);
     string name_kc;
     int number_of_workshops;
@@ -132,24 +143,25 @@ void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
 }
 
 
-
+// Основной цикл
 int main()
 {
-    setlocale(LC_ALL, "RU");
+    setlocale(LC_ALL, "ru");
 
     vector<Pipe> pipes;
     vector<Compressor_station> stations;
 
 
     while (1) {
-        clear;
+        CLEAR;
         cout << "\n1. Добавить трубу\n" <<
             "2. Добавить КС\n" <<
             "3. Просмотр всех объектов\n" <<
             "4. Редактировать трубу\n" <<
             "5. Редактировать КС\n" <<
             "6. Сохранить\n" <<
-            "7. Загрузить\n" << endl;
+            "7. Загрузить\n" << 
+            "0. Выход\n" << endl;
         
        
         switch (GetCorrectNumber(0, 7))
