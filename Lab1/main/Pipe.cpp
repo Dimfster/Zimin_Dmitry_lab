@@ -26,10 +26,10 @@ void Pipe::WhiteInfo() {
     getline(cin, name);
 
     cout << "¬ведите длину трубы(м):" << endl;
-    length = GetCorrectNumber(0.0, 100000000);
+    length = GetCorrectNumber(1.0, 100000000);
 
     cout << "¬ведите диаметр трубы(мм):" << endl;
-    diameter = GetCorrectNumber(0, 1400);
+    diameter = GetCorrectNumber(300, 1400);
 
     cout << "¬ведите состо€ние трубы:(0 - в ремонте; 1 - в эксплуатации)" << endl;
     if (GetCorrectNumber(0, 1)) {
