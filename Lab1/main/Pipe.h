@@ -2,26 +2,33 @@
 
 #include "Utilites.h"
 
-
 using namespace std;
 
-struct Pipe {
+class Pipe {
     string name;
     float length;
     int diameter;
     bool in_repair;
+    int ID;
+
+    
+
+public:
+    static int MaxId;
 
     Pipe();
-    Pipe(string name, float length, int diameter, bool in_repair);
+    Pipe(const string name, const float length, const int diameter, const bool in_repair);
 
-    void WhiteInfo();
+    void WriteInfo();
 
     void ShowInfo();
 
     void Edit();
 
-    void SaveInfo(ofstream& file);
+    void Edit(const int answer);
 
+    friend ofstream& operator << (ofstream& out, const Pipe& pipe);
+    friend ifstream& operator >> (ifstream& file, Pipe& pipe);
 };
 
 

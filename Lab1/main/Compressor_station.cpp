@@ -1,11 +1,15 @@
 #include "Compressor_station.h"
 
+
+int Compressor_station::MaxId = 1000;
+
 // Конструктор КС
 Compressor_station::Compressor_station() {
     name = "Non";
     number_of_workshops = 0;
-    active_workshops = 0;
-    type = "No";
+    this->active_workshops = 0;
+    type = "type";
+    ID = ++MaxId;
 }
 
 // Конструктор КС для загрузки
@@ -17,8 +21,8 @@ Compressor_station::Compressor_station(string name, int number_of_workshops, int
 }
 
 // Ввод информации о КС
-void Compressor_station::WhiteInfo() {
-    CLEAR;
+void Compressor_station::WriteInfo() {
+    ENTER;
 
     cout << "Введите название КС:" << endl;
     cin.ignore(1000000, '\n');
@@ -38,23 +42,47 @@ void Compressor_station::WhiteInfo() {
 // Просмотр информации КС
 void Compressor_station::ShowInfo() {
     setlocale(LC_ALL, "RU");
-    cout << "КС " << name << "; Кол-во цехов: " << number_of_workshops << "; Рабочие цеха: " << active_workshops << "; Тип: " << type << endl;
+    cout << "КС " << name << "; Кол-во цехов: " << number_of_workshops << "; Рабочие цеха: " 
+        << active_workshops << "; Тип: " << type << "; Id: " << ID << endl;
 }
+
+
+void Compressor_station::Edit(int active) {
+    active_workshops = active;
+}
+
 
 // Редактирование КС
 void Compressor_station::Edit()
 {
-    CLEAR;
+    ENTER;
     ShowInfo();
     cout << "Изменить кол-во рабочих цехов:" << endl;
     active_workshops = GetCorrectNumber(0, number_of_workshops);
+    Edit(GetCorrectNumber(0, number_of_workshops));
 }
 
-// Сохраниние данных КС в файл
-void Compressor_station::SaveInfo(ofstream& file)
-{
+
+ofstream& operator << (ofstream& file, const Compressor_station& CS) {
     if (file.is_open()) {
-        file << name << ";" << number_of_workshops << ";" << active_workshops << ";" << type << ";" << endl;
+        file << CS.name << endl;
+        file << CS.number_of_workshops << endl;
+        file << CS.active_workshops << endl;
+        file << CS.type << endl;
+        file << CS.ID << endl;
     }
+    return file;
+}
+
+
+ifstream& operator >> (ifstream& file, Compressor_station& CS) {
+    if (file.is_open()) {
+        file >> CS.name;
+        file >> CS.number_of_workshops;
+        file >> CS.active_workshops;
+        file >> CS.type;
+        file >> CS.ID;
+    }
+    return file;
 }
 

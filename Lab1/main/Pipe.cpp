@@ -1,12 +1,14 @@
 #include "Pipe.h"
 
+int Pipe::MaxId = 100;
 
 // Конструктор трубы
 Pipe::Pipe() {
     name = "Non";
     length = 0.0;
     diameter = 0;
-    in_repair = false;
+    in_repair = 0;
+    ID = ++MaxId;
 }
 
 // Конструктор трубы для загрузки
@@ -18,9 +20,8 @@ Pipe::Pipe(string name, float length, int diameter, bool in_repair) {
 }
 
 // Ввод информации о трубе
-void Pipe::WhiteInfo() {
-    CLEAR;
-
+void Pipe::WriteInfo() {
+    ENTER;
     cout << "Введите название трубы:" << endl;
     cin.ignore(1000000, '\n');
     getline(cin, name);
@@ -43,27 +44,48 @@ void Pipe::WhiteInfo() {
 // Просмотр информации трубы
 void Pipe::ShowInfo() {
     cout << "Труба " << name << "; Длина: " << length << "; Диаметр: " << diameter
-        << "; Состояние:(0 - в ремонте, 1 - в эксплуатации): " << in_repair << endl;
+        << "; Состояние:(0 - в ремонте, 1 - в эксплуатации): " << in_repair <<"; Id: " << ID << endl;
 }
+
+
+void Pipe::Edit(const int answer) {
+    if (answer) {
+        in_repair = !in_repair;
+    }
+}
+
 
 // Редактирование трубы
 void Pipe::Edit()
 {
-    CLEAR;
+    ENTER;
     ShowInfo();
     cout << "Изменить состояние трубы?(0 - нет, 1 - да)" << endl;
-    int answer = GetCorrectNumber(0, 1);
-    if (answer) {
-        in_repair = !in_repair;
-    }
-
+    Edit(GetCorrectNumber(0, 1));
 }
 
-// Сохраниние данных трубы в файл
-void Pipe::SaveInfo(ofstream& file) {
+
+
+ofstream& operator << (ofstream& file, const Pipe& pipe) {
     if (file.is_open()) {
-        file << name << ";" << length << ";" << diameter << ";" << in_repair <<";" << endl;
+        file << pipe.name << endl;
+        file << pipe.length << endl;
+        file << pipe.diameter << endl;
+        file << pipe.in_repair << endl;
+        file << pipe.ID << endl;
     }
+    return file;
 }
 
+
+ifstream& operator >> (ifstream& file, Pipe& pipe) {
+    if (file.is_open()) {
+        file >> pipe.name;
+        file >> pipe.length;
+        file >> pipe.diameter;
+        file >> pipe.in_repair;
+        file >> pipe.ID;
+    }
+    return file;
+}
 

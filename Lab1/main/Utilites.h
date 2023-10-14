@@ -1,14 +1,17 @@
 #pragma once
-#include <iostream>
-#include <fstream>
-#include <string>
+#include <iostream> // Поток Ввода-вывода
+#include <fstream> // Файловый поток
+#include <string> 
 #include <vector>
-#include <Windows.h>
+#include <map>
+#include <list>
+#include <Windows.h> // Системная библиотека(для очистки командоной строки и ввода любой клавиши)
 #include <conio.h>
 #include <sstream>
+#include <filesystem>
 
 
-#define CLEAR system("cls");
+#define ENTER std::cout << std::endl << std::endl;
 
 
 // Функция проверки значения
