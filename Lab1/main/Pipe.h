@@ -5,16 +5,16 @@
 using namespace std;
 
 class Pipe {
-    string name;
     float length;
     int diameter;
-    bool in_repair;
-    int ID;
 
     
-
 public:
+    int ID;
     static int MaxId;
+
+    string name;
+    bool in_repair;
 
     Pipe();
     Pipe(const string name, const float length, const int diameter, const bool in_repair);
@@ -26,6 +26,9 @@ public:
     void Edit();
 
     void Edit(const int answer);
+
+    friend ostream& operator << (ostream& out, const Pipe& pipe);
+    friend istream& operator >> (istream& file, Pipe& pipe);
 
     friend ofstream& operator << (ofstream& out, const Pipe& pipe);
     friend ifstream& operator >> (ifstream& file, Pipe& pipe);

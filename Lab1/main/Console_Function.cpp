@@ -12,18 +12,34 @@ void Wait() {
 
 // Показывает все компоненты вектора
 template <typename T>
-void ViewComponents(vector<T>& vector)
+void ViewComponents(unordered_map<int, T>& conteiner)
 {
-    for (int i = 0; i < vector.size(); i++) {
-        cout << i + 1 << ". ";
-        vector[i].ShowInfo();
+    int i = 1;
+    for (auto& element : conteiner){
+        cout << i << ". ";
+        i++;
+        element.second.ShowInfo();
     }
+        
+}
+
+
+template <typename T>
+map<int, int> Create_Console_Map(const unordered_map<int, T>& conteiner)
+{
+    map<int, int> new_map;
+    int i = 0;
+    for (auto& element : conteiner) {
+        i++;
+        new_map.insert({ i,element.first });
+    }
+    return new_map;
 }
 
 
 
 // Показывает меню просмотра труб и станций
-void View(vector<Pipe>& pipes, vector<Compressor_station>& stations)
+void View(unordered_map<int, Pipe>& pipes, unordered_map<int, Compressor_station>& stations)
 {
 
     while (1) {
@@ -74,16 +90,19 @@ void View(vector<Pipe>& pipes, vector<Compressor_station>& stations)
 }
 
 
+
 // Меню выбора редактируемой трубы 
-void EditPipeline(vector<Pipe>& pipes)
+void EditPipeline(unordered_map<int, Pipe>& pipes)
 {
-    if (pipes.empty()) {
+    if (pipes.size()) {
         ENTER;
         cout << "Список труб:\n";
         ViewComponents(pipes);
         cout << "Выберете редактируемую трубу:";
+
+        map<int, int> new_map = Create_Console_Map(pipes);
         int number = GetCorrectNumber(1, pipes.size());
-        pipes[number - 1].Edit();
+        pipes[new_map[number]].Edit();
     }
     else {
         cout << "Нет доступных труб!" <<
@@ -92,15 +111,19 @@ void EditPipeline(vector<Pipe>& pipes)
     }
 }
 
+
+
 // Меню выбора редактируемой КС
-void EditCopressorStation(vector<Compressor_station>& stations) {
-    if (stations.empty()) {
+void EditCopressorStation(unordered_map<int, Compressor_station>& stations) {
+    if (stations.size()) {
         ENTER;
         cout << "Список станций:\n";
         ViewComponents(stations);
         cout << "Выберете редактируемую станцию:";
+
+        map<int, int> new_map = Create_Console_Map(stations);
         int number = GetCorrectNumber(1, stations.size());
-        stations[number - 1].Edit();
+        stations[new_map[number]].Edit();
     }
     else {
         cout << "Нет доступных КС!" <<
@@ -109,29 +132,35 @@ void EditCopressorStation(vector<Compressor_station>& stations) {
     }
 }
 
+
 // Сохрание конфигурации
-void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations) {
-    cout << "Введите название сохранения:" << endl;
-    string name;
-    cin.ignore(10000, '\n');
-    getline(cin, name);
-    name = "Saves/" + name + ".txt";
+void SaveConfiguration(const unordered_map<int, Pipe>& pipes, const unordered_map<int, Compressor_station>& stations) {
+    if (pipes.size() and stations.size()) {
+        cout << "Введите название сохранения:" << endl;
+        string name;
+        cin.ignore(10000, '\n');
+        getline(cin, name);
+        name = "Saves/" + name + ".txt";
 
-    ofstream file;
-    file.open(name, ios::out);
-    file << pipes.size() << " " << stations.size() << endl;
-    for (int i = 0; i < pipes.size(); i++) file << pipes[i];
-    for (int i = 0; i < stations.size(); i++) file << stations[i];
-    file.close();
+        ofstream file;
+        file.open(name, ios::out);
+        file << pipes.size() << " " << stations.size() << endl;
+        for (auto& pipe : pipes) file << pipe.second;
+        for (auto& station: stations) file << station.second;
+        file.close();
 
-    ENTER;
-    cout << "Успешно сохранено!\nНажмите любую клавишу" << endl;
-    Wait();
+        ENTER;
+        cout << "Успешно сохранено!\nНажмите любую клавишу" << endl;
+        Wait();
+    }
+    
+    else ENTER; cout << "Сохранение не может быть пустым, запишите данные!" << endl;
+
 }
 
 
 // Загрузка конфигурации
-void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations) {
+void LoadConfiguration(unordered_map<int, Pipe>& pipes, unordered_map<int, Compressor_station>& stations) {
     ENTER;
     ifstream file;
     std::string path = "Saves\\";
@@ -161,13 +190,13 @@ void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
             Pipe pipe;
             for (count_pipes; count_pipes > 0; count_pipes--){
                 file >> pipe;
-                pipes.push_back(pipe);
+                pipes.insert({pipe.ID, pipe});
             }
 
             Compressor_station station;
             for (count_cs; count_cs > 0; count_cs--) {
                 file >> station;
-                stations.push_back(station);
+                stations.insert({station.ID, station});
             }
 
             cout << "Файлы загружены!\n" << "Нажмите любую клавишу" << endl;
@@ -178,6 +207,109 @@ void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations
 }
 
 
+template <typename T1, typename T2>
+using Filter = bool(*)(T1& element, T2 parametr);
+
+template <typename T>
+bool CheckByName(T& element, string name) {
+    return (element.name.find(name) != string::npos);
+}
+
+bool CheckByStatus(Pipe& pipe, bool in_repair) {
+    return pipe.in_repair == in_repair;
+}
+
+bool CheckByActive(Compressor_station& station, int active_workshops) {
+    return station.active_workshops == active_workshops;
+}
 
 
+template <typename T1, typename T2>
+vector<int> Find_By_Filter(unordered_map<int, T1>& elements, Filter<T1, T2> filter, T2 parametr)
+{
+    vector<int> result;
+    for (auto& element : elements)
+    {
+        if (filter(element.second, parametr)) result.push_back(element.second.ID);
+    }
+    return result;
+}
 
+
+void SearchPipes(unordered_map<int, Pipe>& pipes) 
+{
+    if (pipes.size())
+    {
+        cout << "Выберете фильтр поиска:\n1. По имени\n2. По состоянию" << endl;
+        vector<int> result;
+
+        switch (GetCorrectNumber(1, 2))
+        {
+        case 1:
+        {
+            cout << "Введите имя трубы:" << endl;
+            string name;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+            getline(cin, name);
+
+            result = Find_By_Filter<Pipe, string>(pipes, CheckByName, name);
+            break;
+        }
+        case 2:
+        {
+            cout << "Введите состояние трубы:" << endl;
+            result = Find_By_Filter<Pipe, bool>(pipes, CheckByStatus, GetCorrectNumber(0, 1));
+            break;
+        }
+        }
+
+        if (result.size())
+        {
+            for (auto& id : result) pipes.at(id).ShowInfo();
+        }
+        else cout << "Нет подходящих труб";
+    }
+    else cout << "Нет доступных труб!";
+
+    
+}
+
+
+void SearchCS(unordered_map<int, Compressor_station>& stations)
+{
+    if (stations.size())
+    {
+        cout << "Выберете фильтр поиска:\n1. По имени\n2. По активным цехам" << endl;
+        vector<int> result;
+
+        switch (GetCorrectNumber(1, 2))
+        {
+        case 1:
+        {
+            cout << "Введите имя станции:" << endl;
+            string name;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+            getline(cin, name);
+
+            result = Find_By_Filter<Compressor_station, string>(stations, CheckByName, name);
+            break;
+        }
+        case 2:
+        {
+            cout << "Введите кол-во активных станций:" << endl;
+            result = Find_By_Filter<Compressor_station, int>(stations, CheckByActive, GetCorrectNumber(0, 10));
+            break;
+        }
+        }
+
+        if (result.size())
+        {
+            for (auto& id : result) stations[id].ShowInfo();
+        }
+        else cout << "Нет подходящих станций";
+    }
+    else cout << "Нет доступных станций!";
+
+}

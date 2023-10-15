@@ -30,7 +30,7 @@ void Pipe::WriteInfo() {
     length = GetCorrectNumber(1.0, 100000000);
 
     cout << "Введите диаметр трубы(мм):" << endl;
-    diameter = GetCorrectNumber(300, 1400);
+    diameter = GetCorrectNumber(100, 1400);
 
     cout << "Введите состояние трубы:(0 - в ремонте; 1 - в эксплуатации)" << endl;
     if (GetCorrectNumber(0, 1)) {
@@ -49,9 +49,8 @@ void Pipe::ShowInfo() {
 
 
 void Pipe::Edit(const int answer) {
-    if (answer) {
-        in_repair = !in_repair;
-    }
+    if (answer) in_repair = true;
+    else in_repair = false;
 }
 
 
@@ -60,11 +59,21 @@ void Pipe::Edit()
 {
     ENTER;
     ShowInfo();
-    cout << "Изменить состояние трубы?(0 - нет, 1 - да)" << endl;
+    cout << "Изменить состояние трубы?(0 - в ремонт, 1 - в рабочее состояние)" << endl;
     Edit(GetCorrectNumber(0, 1));
 }
 
 
+
+ostream& operator << (ostream& out, const Pipe& pipe)
+{
+
+    return out;
+}
+istream& operator >> (istream& in, Pipe& pipe) 
+{
+    return in;
+}
 
 ofstream& operator << (ofstream& file, const Pipe& pipe) {
     if (file.is_open()) {
@@ -76,7 +85,6 @@ ofstream& operator << (ofstream& file, const Pipe& pipe) {
     }
     return file;
 }
-
 
 ifstream& operator >> (ifstream& file, Pipe& pipe) {
     if (file.is_open()) {

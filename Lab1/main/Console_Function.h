@@ -14,28 +14,34 @@ void Wait();
 
 // Показывает все компоненты вектора
 template <typename T>
-void ViewComponents(vector<T>& vector);
+void ViewComponents(unordered_map<int, T>& map);
 
+
+template <typename T>
+map<int, int> Create_Console_Map(const unordered_map<int, T>& conteiner);
 
 
 // Показывает меню просмотра труб и станций
-void View(vector<Pipe>& pipes, vector<Compressor_station>& stations);
+void View(unordered_map<int, Pipe>& pipes, unordered_map<int, Compressor_station>& stations);
 
 
 // Меню выбора редактируемой трубы 
-void EditPipeline(vector<Pipe>& pipes);
+void EditPipeline(unordered_map<int, Pipe>& pipes);
+
 
 // Меню выбора редактируемой КС
-void EditCopressorStation(vector<Compressor_station>& stations);
+void EditCopressorStation(unordered_map<int, Compressor_station>& stations);
 
 // Сохрание конфигурации
-void SaveConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations);
+void SaveConfiguration(const unordered_map<int, Pipe>& pipes, const unordered_map<int, Compressor_station>& stations);
 
 
 // Загрузка конфигурации
-void LoadConfiguration(vector<Pipe>& pipes, vector<Compressor_station>& stations);
+void LoadConfiguration(unordered_map<int, Pipe>& pipes, unordered_map<int, Compressor_station>& stations);
 
 
 
+void SearchPipes(unordered_map<int, Pipe>& pipes);
 
 
+void SearchCS(unordered_map<int, Compressor_station>& stations);

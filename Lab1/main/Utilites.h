@@ -3,8 +3,11 @@
 #include <fstream> // Файловый поток
 #include <string> 
 #include <vector>
+#include <unordered_map>
 #include <map>
+
 #include <list>
+
 #include <Windows.h> // Системная библиотека(для очистки командоной строки и ввода любой клавиши)
 #include <conio.h>
 #include <sstream>
