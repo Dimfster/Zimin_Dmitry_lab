@@ -58,10 +58,9 @@ void Compressor_station::Edit()
     ENTER;
     ShowInfo();
     cout << "Изменить кол-во рабочих цехов:" << endl;
-    active_workshops = GetCorrectNumber(0, number_of_workshops);
-    Edit(GetCorrectNumber(0, number_of_workshops));
+    int answer = GetCorrectNumber(0, number_of_workshops);
+    Edit(answer);
 }
-
 
 ofstream& operator << (ofstream& file, const Compressor_station& CS) {
     if (file.is_open()) {

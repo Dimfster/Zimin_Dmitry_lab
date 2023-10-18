@@ -1,4 +1,7 @@
-﻿#include "Console_Function.h"
+﻿#include "Utilites.h"
+#include "Console_Function.h"
+#include "Compressor_station.h"
+#include "Pipe.h"
 
 
 // Основной цикл
