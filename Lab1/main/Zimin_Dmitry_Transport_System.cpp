@@ -1,7 +1,10 @@
 ﻿#include "Utilites.h"
-#include "Console_Function.h"
 #include "Compressor_station.h"
 #include "Pipe.h"
+#include "GTS.h"
+
+
+using namespace std;
 
 
 // Основной цикл
@@ -9,76 +12,71 @@ int main()
 {
     setlocale(LC_ALL, "ru");
 
-    unordered_map<int,Pipe> pipes;
-    unordered_map<int, Compressor_station> stations;
-
+    GTS GasSystem;
 
     while (1) {
         ENTER;
         cout << "\n1. Добавить трубу\n" <<
             "2. Добавить КС\n" <<
             "3. Просмотр всех объектов\n" <<
-            "4. Редактировать трубу\n" <<
-            "5. Редактировать КС\n" <<
-            "6. Сохранить\n" <<
-            "7. Загрузить\n" << 
-            "8. Поиск труб по фильтру\n" <<
-            "9. Поиск станций по фильтру\n" <<
+            "4. Редактирование\n" <<
+            "5. Удаление\n" <<
+            "6. Поиск по фильтру\n" <<
+            "7. Сохранить\n" <<
+            "8. Загрузить\n" << 
             "0. Выход\n" << endl;
         
        
         switch (GetCorrectNumber(0, 9))
         {
 
-        case 1: {
-            Pipe pipe;
-            pipe.WriteInfo();
-            pipes.insert({ pipe.ID, pipe });
+        case 1: 
+            {
+                GasSystem.CreatePipe();
+                break;
+            }
+        case 2: 
+            {
+                GasSystem.CreateCS();
+                break;
+            }
+        
+        case 3: 
+        {
+            GasSystem.View();
             break;
         }
-        case 2: {
-            Compressor_station station;
-            station.WriteInfo();
-            stations.insert({ station.ID, station });
-            break;
-        }
-        case 3: {
-            View(pipes, stations);
-            break;
-        }
-        case 4: {
-            EditPipeline(pipes);
+        
+        case 4: 
+        {
+            GasSystem.Edit();
             break;
         }
 
         case 5: {
-            EditCopressorStation(stations);
+            GasSystem.Search();
             break;
         }
+
         case 6: {
-            SaveConfiguration(pipes, stations);
+            GasSystem.Search();
             break;
         }
-
+        
         case 7: {
-            LoadConfiguration(pipes, stations);
+            GasSystem.SaveConfiguration();
             break;
         }
+
         case 8: {
-            SearchPipes(pipes);
+            GasSystem.LoadConfiguration();
             break;
         }
-
-        case 9: {
-            SearchCS(stations);
-            break;
-        }
-
+        
         case 0: {
             return 0;
 
         }
-
         }
     }
 

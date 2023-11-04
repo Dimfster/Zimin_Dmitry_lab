@@ -130,13 +130,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Compressor_station.cpp" />
-    <ClCompile Include="Console_Function.cpp" />
+    <ClCompile Include="GTS.cpp" />
     <ClCompile Include="Zimin_Dmitry_Transport_System.cpp" />
     <ClCompile Include="Pipe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Compressor_station.h" />
-    <ClInclude Include="Console_Function.h" />
+    <ClInclude Include="GTS.h" />
     <ClInclude Include="Pipe.h" />
     <ClInclude Include="Utilites.h" />
   </ItemGroup>

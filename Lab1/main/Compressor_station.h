@@ -3,22 +3,19 @@
 #include "Utilites.h"
 
 
-using namespace std;
-
-
 class Compressor_station {
     int number_of_workshops;
     int efficianty;
+    int ID;
+    inline static int MaxId = 1000;
     
 public:
-    int ID;
-    static int MaxId;
 
-    string name;
+    std::string name;
     int active_workshops;
 
     Compressor_station();
-    Compressor_station(string name, int number_of_workshops, int active_workshops, int efficianty);
+    Compressor_station(std::string name, int number_of_workshops, int active_workshops, int efficianty);
 
     void WriteInfo();
 
@@ -28,7 +25,11 @@ public:
 
     void Edit(int active);
 
-    friend ofstream& operator << (ofstream& out, const Compressor_station& CS);
-    friend ifstream& operator >> (ifstream& file, Compressor_station& CS);
-};
+    void SetMaxId(int MaxId) { this->MaxId = MaxId; };
+    int GetMaxId() { return MaxId; };
 
+    int GetID() { return ID; };
+
+    friend std::ofstream& operator << (std::ofstream& out, const Compressor_station& CS);
+    friend std::ifstream& operator >> (std::ifstream& file, Compressor_station& CS);
+};

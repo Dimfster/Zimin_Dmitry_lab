@@ -36,3 +36,46 @@ T1 GetCorrectNumber(T1 min, T2 max)
 
 
 
+// Используется для удобства выбора в консоли
+template <typename T>
+std::map<int, int> Create_Console_Map(const std::unordered_map<int, T>& conteiner)
+{
+    std::map<int, int> new_map;
+    int i = 0;
+    for (auto& element : conteiner) {
+        i++;
+        new_map.insert({ i,element.first });
+    }
+    return new_map;
+}
+
+ 
+//---------------Выбор функции-------------------
+
+using Function = void(*)();
+
+inline void Switch(std::vector<Function> functions)
+{
+    int size = functions.size();
+    int answer = GetCorrectNumber(0, size);
+    if (answer)
+    {
+        functions[answer - 1]();
+    }
+    return;
+}
+
+// Ожидание ввода клавиши
+inline void Wait() 
+{
+    while (true)
+    {
+        if (_kbhit()) break;
+    }
+}
+
+
+
+
+
+

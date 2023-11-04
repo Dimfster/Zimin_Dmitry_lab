@@ -1,13 +1,13 @@
 #include "Compressor_station.h"
 
+using namespace std;
 
-int Compressor_station::MaxId = 1000;
 
 // Конструктор КС
 Compressor_station::Compressor_station() {
     name = "Non";
     number_of_workshops = 0;
-    this->active_workshops = 0;
+    active_workshops = 0;
     efficianty = 0;
     ID = ++MaxId;
 }
@@ -81,6 +81,8 @@ ifstream& operator >> (ifstream& file, Compressor_station& CS) {
         file >> CS.active_workshops;
         file >> CS.efficianty;
         file >> CS.ID;
+        if (CS.ID > Compressor_station::MaxId)
+            Compressor_station::MaxId = CS.ID;
     }
     return file;
 }

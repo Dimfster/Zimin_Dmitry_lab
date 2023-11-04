@@ -1,9 +1,12 @@
 #include "Pipe.h"
 
-int Pipe::MaxId = 100;
+using namespace std;
+
+
 
 // Конструктор трубы
-Pipe::Pipe() {
+Pipe::Pipe() 
+{
     name = "Non";
     length = 0.0;
     diameter = 0;
@@ -48,9 +51,8 @@ void Pipe::ShowInfo() {
 }
 
 
-void Pipe::Edit(const int answer) {
-    if (answer) in_repair = true;
-    else in_repair = false;
+void Pipe::Edit(int status) {
+    if (status) in_repair = !in_repair;
 }
 
 
@@ -59,7 +61,7 @@ void Pipe::Edit()
 {
     ENTER;
     ShowInfo();
-    cout << "Изменить состояние трубы?(0 - в ремонт, 1 - в рабочее состояние)" << endl;
+    cout << "Изменить состояние трубы?(0 - нет, 1 - да)" << endl;
     Edit(GetCorrectNumber(0, 1));
 }
 
@@ -67,9 +69,9 @@ void Pipe::Edit()
 
 ostream& operator << (ostream& out, const Pipe& pipe)
 {
-
     return out;
 }
+
 istream& operator >> (istream& in, Pipe& pipe) 
 {
     return in;

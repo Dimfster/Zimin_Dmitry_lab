@@ -24,7 +24,7 @@
     <ClCompile Include="Pipe.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Console_Function.cpp">
+    <ClCompile Include="GTS.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClInclude Include="Pipe.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Console_Function.h">
+    <ClInclude Include="GTS.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
