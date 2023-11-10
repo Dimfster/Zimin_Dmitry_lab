@@ -27,13 +27,11 @@ public:
 
     void Edit(int status);
 
-    void SetMaxId(int MaxId) { this->MaxId = MaxId; };
+    void SetMaxId(int MaxId) { this->MaxId = MaxId; };//!!!!!!!!!!!!!
     int GetMaxId() { return MaxId; };
 
     int GetID() { return ID; };
 
-    friend std::ostream& operator << (std::ostream& out, const Pipe& pipe);
-    friend std::istream& operator >> (std::istream& file, Pipe& pipe);
 
     friend std::ofstream& operator << (std::ofstream& out, const Pipe& pipe);
     friend std::ifstream& operator >> (std::ifstream& file, Pipe& pipe);

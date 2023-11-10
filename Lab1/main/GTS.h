@@ -2,14 +2,14 @@
 
 #include "Utilites.h"
 #include "Pipe.h"
-#include "Compressor_station.h"
+#include "Station.h"
 
 
 class GTS
 {
 
     std::unordered_map<int, Pipe> pipes;
-    std::unordered_map<int, Compressor_station> stations;
+    std::unordered_map<int, Station> stations;
 
 
 public:
@@ -62,21 +62,26 @@ public:
     void EditSomeCS();
 
     template <typename Struct>
-    void EditOne(std::unordered_map<int, Struct>& struct_one)
+    void EditOne(std::unordered_map<int, Struct>& structure)
     {
-        std::map<int, int> new_map = Create_Console_Map(struct_one);
-        int number = GetCorrectNumber(1, struct_one.size());
-        struct_one[new_map[number]].Edit();
+        auto keys = GetKeys(structure);
+        int number = GetCorrectNumber<int>(std::cin, 1, keys.size())-1;
+        structure[keys[number]].Edit();
     }
 
-    template <typename Struct>
-    void EditSome(std::unordered_map<int, Struct>& struct_one)
-    {
-        std::map<int, int> new_map = Create_Console_Map(struct_one);
-        int number = GetCorrectNumber(1, struct_one.size());
-        struct_one[new_map[number]].Edit();
-    }
 
+
+    //---------------Удаление-------------------
+    void Delete();
+    void DeletePipes();
+    void DeleteStations();
+
+
+    void DeletePipes(std::vector<int>& ids);
+    void DeleteStations(std::vector<int>& ids);
+
+    void DeleteSomePipes();
+    void DeleteSomeStations();
 
     //---------------Сохранение-Загрузка-------------------
     void SaveConfiguration();

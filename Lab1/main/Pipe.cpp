@@ -26,17 +26,17 @@ Pipe::Pipe(string name, float length, int diameter, bool in_repair) {
 void Pipe::WriteInfo() {
     ENTER;
     cout << "¬ведите название трубы:" << endl;
-    cin.ignore(1000000, '\n');
-    getline(cin, name);
+    name = input_string(cin);
+
 
     cout << "¬ведите длину трубы(м):" << endl;
-    length = GetCorrectNumber(1.0, 100000000);
+    length = GetCorrectNumber(cin, 1.0, 100000000.);
 
     cout << "¬ведите диаметр трубы(мм):" << endl;
-    diameter = GetCorrectNumber(100, 1400);
+    diameter = GetCorrectNumber(cin, 100, 1400);
 
     cout << "¬ведите состо€ние трубы:(0 - в ремонте; 1 - в эксплуатации)" << endl;
-    if (GetCorrectNumber(0, 1)) {
+    if (cin,GetCorrectNumber(cin, 0, 1)) {
         in_repair = true;
     }
     else {
@@ -62,20 +62,11 @@ void Pipe::Edit()
     ENTER;
     ShowInfo();
     cout << "»зменить состо€ние трубы?(0 - нет, 1 - да)" << endl;
-    Edit(GetCorrectNumber(0, 1));
+    Edit(GetCorrectNumber(cin, 0, 1));
 }
 
 
 
-ostream& operator << (ostream& out, const Pipe& pipe)
-{
-    return out;
-}
-
-istream& operator >> (istream& in, Pipe& pipe) 
-{
-    return in;
-}
 
 ofstream& operator << (ofstream& file, const Pipe& pipe) {
     if (file.is_open()) {
@@ -90,7 +81,8 @@ ofstream& operator << (ofstream& file, const Pipe& pipe) {
 
 ifstream& operator >> (ifstream& file, Pipe& pipe) {
     if (file.is_open()) {
-        file >> pipe.name;
+        file >> ws;
+        getline(file, pipe.name);
         file >> pipe.length;
         file >> pipe.diameter;
         file >> pipe.in_repair;

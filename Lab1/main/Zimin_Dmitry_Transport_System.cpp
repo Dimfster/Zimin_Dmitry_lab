@@ -1,16 +1,26 @@
 ﻿#include "Utilites.h"
-#include "Compressor_station.h"
+#include "Station.h"
 #include "Pipe.h"
 #include "GTS.h"
-
+#include <format>
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 
 // Основной цикл
-int main()
+int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "ru");
+
+
+    redirect_stream_wrapper cerr_out(cerr);
+    string time = format("{:%d_%m_%Y_%H_%M_%OS}", system_clock::now() + hours(3));
+    ofstream logfile("Logs/log_" + time);
+    if (logfile)
+        cerr_out.redirect(logfile);
+ 
 
     GTS GasSystem;
 
@@ -27,7 +37,7 @@ int main()
             "0. Выход\n" << endl;
         
        
-        switch (GetCorrectNumber(0, 9))
+        switch (GetCorrectNumber(cin, 0, 9))
         {
 
         case 1: 
@@ -54,7 +64,7 @@ int main()
         }
 
         case 5: {
-            GasSystem.Search();
+            GasSystem.Delete();
             break;
         }
 

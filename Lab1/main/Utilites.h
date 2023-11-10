@@ -6,31 +6,65 @@
 #include <unordered_map>
 #include <map>
 
-#include <list>
-
 #include <Windows.h> // Системная библиотека(для очистки командоной строки и ввода любой клавиши)
 #include <conio.h>
 #include <sstream>
 #include <filesystem>
+#include <format>
 
 
 #define ENTER std::cout << std::endl << std::endl;
 
 
-// Функция проверки значения
-template <typename T1,typename T2>
-T1 GetCorrectNumber(T1 min, T2 max)
+//Обёртка cerr
+template <typename Stream>
+class redirect_stream_wrapper
 {
-    T1 x;
-    while ((std::cin >> x).fail()	
-        || std::cin.peek() != '\n'
+    Stream& stream;
+    std::streambuf* const old_buf;
+public:
+    redirect_stream_wrapper(Stream& src)
+        :old_buf(src.rdbuf()), stream(src)
+    {
+    }
+
+    ~redirect_stream_wrapper() {
+        stream.rdbuf(old_buf);
+    }
+    void redirect(Stream& dest)
+    {
+        stream.rdbuf(dest.rdbuf());
+    }
+};
+
+
+inline std::string input_string(std::istream& in)
+{
+    in.ignore(1000000, '\n');
+    in >> std::ws;
+    std::string str;
+    std::getline(std::cin, str);
+    std::cerr << str << std::endl;
+    return str;
+}
+
+
+
+// Функция проверки значения
+template <typename T>
+T GetCorrectNumber(std::istream& in, T min, T max)
+{
+    T x;
+    while ((in >> x).fail()	
+        || in.peek() != '\n'
         || x < min || x > max)		
     {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
+        in.clear();
+        in.ignore(10000, '\n');
         std::cout << "\nНеверный ввод данных!" << std::endl;
         std::cout << "Введите число от " << min << " до " << max << std::endl;
     }
+    std::cerr << x << std::endl;
     return x;
 }
 
@@ -38,40 +72,29 @@ T1 GetCorrectNumber(T1 min, T2 max)
 
 // Используется для удобства выбора в консоли
 template <typename T>
-std::map<int, int> Create_Console_Map(const std::unordered_map<int, T>& conteiner)
+std::vector<int> GetKeys(const std::unordered_map<int, T>& container)
 {
-    std::map<int, int> new_map;
+    std::vector<int> keys;
+    keys.reserve(container.size());
     int i = 0;
-    for (auto& element : conteiner) {
-        i++;
-        new_map.insert({ i,element.first });
-    }
-    return new_map;
+    for (auto& [id, element] : container) 
+        keys.push_back(id);
+    return keys;
 }
 
  
 //---------------Выбор функции-------------------
-
 using Function = void(*)();
 
 inline void Switch(std::vector<Function> functions)
 {
     int size = functions.size();
-    int answer = GetCorrectNumber(0, size);
+    int answer = GetCorrectNumber(std::cin, 0, size);
     if (answer)
     {
         functions[answer - 1]();
     }
     return;
-}
-
-// Ожидание ввода клавиши
-inline void Wait() 
-{
-    while (true)
-    {
-        if (_kbhit()) break;
-    }
 }
 
 
