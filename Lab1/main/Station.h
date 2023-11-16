@@ -25,8 +25,8 @@ public:
 
     void Edit(int active);
 
-    void SetMaxId(int MaxId) { this->MaxId = MaxId; };
-    int GetMaxId() { return MaxId; };
+    static int GetMaxId() { return MaxId; };
+    int GetUnactiveWorkshop() { return (1.0 - (double)active_workshops / (double)number_of_workshops) * 100.0;}
 
     int GetID() { return ID; };
 

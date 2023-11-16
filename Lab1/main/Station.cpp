@@ -42,12 +42,16 @@ void Station::WriteInfo() {
 void Station::ShowInfo() {
     setlocale(LC_ALL, "RU");
     cout << "КС " << name << "; Кол-во цехов: " << number_of_workshops << "; Рабочие цеха: " 
-        << active_workshops << "; Эффктивность: " << efficianty << "; Id: " << ID << endl;
+        << active_workshops << "; Эффективность: " << efficianty << "; Id: " << ID << endl;
 }
 
 
 void Station::Edit(int active) {
     active_workshops = active;
+    if (active_workshops > number_of_workshops)
+    {
+        active_workshops = number_of_workshops;
+    }
 }
 
 

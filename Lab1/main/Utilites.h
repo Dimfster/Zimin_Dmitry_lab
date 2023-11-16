@@ -5,6 +5,8 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <set>
+#include <algorithm>
 
 #include <Windows.h> // Системная библиотека(для очистки командоной строки и ввода любой клавиши)
 #include <conio.h>
@@ -44,6 +46,7 @@ inline std::string input_string(std::istream& in)
     in >> std::ws;
     std::string str;
     std::getline(std::cin, str);
+
     std::cerr << str << std::endl;
     return str;
 }
@@ -96,9 +99,3 @@ inline void Switch(std::vector<Function> functions)
     }
     return;
 }
-
-
-
-
-
-

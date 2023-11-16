@@ -34,7 +34,7 @@ public:
     }
 
     template <typename Struct>
-    void ViewComponentsByID(std::vector<int> IDs, std::unordered_map<int, Struct>& conteiner)
+    void ViewComponentsByID(std::set<int> IDs, std::unordered_map<int, Struct>& conteiner)
     {
         int i = 1;
         for (auto& id : IDs) {

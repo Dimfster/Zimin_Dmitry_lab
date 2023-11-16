@@ -8,7 +8,7 @@ class Pipe
     float length;
     int diameter;
     int ID;
-    inline static int MaxId = 0;
+    static int MaxId;
 
     
 public:
@@ -27,8 +27,7 @@ public:
 
     void Edit(int status);
 
-    void SetMaxId(int MaxId) { this->MaxId = MaxId; };//!!!!!!!!!!!!!
-    int GetMaxId() { return MaxId; };
+    static int GetMaxId() { return MaxId; };
 
     int GetID() { return ID; };
 

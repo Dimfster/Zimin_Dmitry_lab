@@ -2,7 +2,7 @@
 
 using namespace std;
 
-
+int Pipe::MaxId = 0;
 
 // Конструктор трубы
 Pipe::Pipe() 
@@ -46,8 +46,9 @@ void Pipe::WriteInfo() {
 
 // Просмотр информации трубы
 void Pipe::ShowInfo() {
+    string sostoyanie = in_repair ? " работает " : " в ремонте";
     cout << "Труба " << name << "; Длина: " << length << "; Диаметр: " << diameter
-        << "; Состояние:(0 - в ремонте, 1 - в эксплуатации): " << in_repair <<"; Id: " << ID << endl;
+        << "; Состояние:" << sostoyanie <<"; Id: " << ID << endl;
 }
 
 
@@ -87,6 +88,7 @@ ifstream& operator >> (ifstream& file, Pipe& pipe) {
         file >> pipe.diameter;
         file >> pipe.in_repair;
         file >> pipe.ID;
+        Pipe::MaxId = (Pipe::MaxId < pipe.ID) ? pipe.ID : Pipe::MaxId;
     }
     return file;
 }
