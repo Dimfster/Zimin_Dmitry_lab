@@ -184,6 +184,7 @@ void GTS::Search()
 void GTS::SearchPipes()
 {
     cout << "Выберете фильтр поиска:" <<
+        "\n0.Выход в меню" <<
         "\n1.По имени" <<
         "\n2.По состоянию" << endl;
     switch (GetCorrectNumber(cin, 0, 2))
@@ -225,6 +226,7 @@ void GTS::SearchPipes()
 void GTS::SearchCS()
 {
     cout << "Выберете фильтр поиска:" <<
+        "\n0.Выход в меню" <<
         "\n1.По имени" <<
         "\n2.По проценту незадействованных цехов" << endl;
     switch (GetCorrectNumber(cin, 0, 2))
@@ -385,8 +387,6 @@ set<int> GetEditNumbers(istream& in, set<int> result)
 }
 
 
-
-
 void GTS::EditSomePipes()
 {
     if (!pipes.size())
@@ -478,8 +478,9 @@ void GTS::EditSomeCS()
     }
 
     cout << "Выберете фильтр поиска:"<<
+        "\n0.Выход в меню" <<
         "\n1.По имени" << 
-        "\n2.По По проценту незадействованных цехов" << endl;
+        "\n2.По проценту незадействованных цехов" << endl;
 
     switch (GetCorrectNumber(cin, 0, 2))
     {
@@ -671,6 +672,7 @@ void GTS::DeleteSomePipes()
     }
 
     cout << "Выберете фильтр поиска:" <<
+        "\n0.Выход в меню" <<
         "\n1.По имени" <<
         "\n2.По состоянию" << endl;
 
@@ -749,8 +751,9 @@ void GTS::DeleteSomeStations()
     }
 
     cout << "Выберете фильтр поиска:" <<
+        "\n0.Выход в меню" <<
         "\n1.По имени" <<
-        "\n2.По По проценту незадействованных цехов" << endl;
+        "\n2.По проценту незадействованных цехов" << endl;
 
     switch (GetCorrectNumber(cin, 0, 2))
     {
@@ -764,6 +767,7 @@ void GTS::DeleteSomeStations()
                 for (auto& id : result) stations.at(id).ShowInfo();
 
                 cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+
                 set<int> numbers = GetEditNumbers(cin, result);
 
                 ENTER;
@@ -840,7 +844,7 @@ void GTS::SaveConfiguration()
 
         ofstream file;
         file.open(name, ios::out);
-        file << pipes.size() << " " << stations.size() << " " << MaxId_Pipe << " " << MaxId_Station << endl;
+        file << pipes.size() << " " << stations.size() << endl;
         for (auto& pipe : pipes)
             file << pipe.second;
         for (auto& station : stations)

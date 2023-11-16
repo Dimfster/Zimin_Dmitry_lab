@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
             "0. Выход\n" << endl;
         
        
-        switch (GetCorrectNumber(cin, 0, 9))
+        switch (GetCorrectNumber(cin, 0, 8))
         {
 
         case 1: 
