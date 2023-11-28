@@ -1,7 +1,5 @@
 #pragma once
-
 #include "Utilites.h"
-
 
 class Pipe 
 {
@@ -9,12 +7,13 @@ class Pipe
     int diameter;
     int ID;
     static int MaxId;
-
+    static std::vector<int> possible_diameters;
     
 public:
 
     std::string name;
     bool in_repair;
+    enum Action {SET_WORK, SET_REPAIR, SET_OPPOSITE};
 
     Pipe();
     Pipe(const std::string name, const float length, const int diameter, const bool in_repair);
@@ -25,7 +24,7 @@ public:
 
     void Edit();
 
-    void Edit(int status);
+    void Edit(const Action);
 
     static int GetMaxId() { return MaxId; };
 

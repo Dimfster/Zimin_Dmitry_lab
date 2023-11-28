@@ -129,12 +129,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Station.cpp" />
     <ClCompile Include="GTS.cpp" />
     <ClCompile Include="Zimin_Dmitry_Transport_System.cpp" />
     <ClCompile Include="Pipe.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graph.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Station.h" />
     <ClInclude Include="GTS.h" />
     <ClInclude Include="Pipe.h" />

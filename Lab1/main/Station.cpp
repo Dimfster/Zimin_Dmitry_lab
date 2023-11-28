@@ -25,16 +25,16 @@ void Station::WriteInfo() {
     ENTER;
 
     cout << "Введите название КС:" << endl;
-    name = input_string(cin);
+    name = input_string();
 
     cout << "Введите кол-во цехов:" << endl;
-    number_of_workshops = GetCorrectNumber(cin, 0, 10);
+    number_of_workshops = GetCorrectNumber(0, 10);
 
     cout << "Введите кол-во работающих цехов" << endl;
-    active_workshops = GetCorrectNumber(cin, 0, number_of_workshops);
+    active_workshops = GetCorrectNumber(0, number_of_workshops);
 
     cout << "Введите эффективность станции(0-100)" << endl;
-    efficianty = GetCorrectNumber(cin, 0, 100);
+    efficianty = GetCorrectNumber(0, 100);
 
 }
 
@@ -54,16 +54,6 @@ void Station::Edit(int active) {
     }
 }
 
-
-// Редактирование КС
-void Station::Edit()
-{
-    ENTER;
-    ShowInfo();
-    cout << "Изменить кол-во рабочих цехов:" << endl;
-    int answer = GetCorrectNumber(cin, 0, number_of_workshops);
-    Edit(answer);
-}
 
 ofstream& operator << (ofstream& file, const Station& CS) {
     if (file.is_open()) {

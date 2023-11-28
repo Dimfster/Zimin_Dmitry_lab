@@ -1,8 +1,10 @@
+#include <filesystem>
+
 #include "Utilites.h"
-#include "Pipe.h"
-#include "Station.h"
 #include "GTS.h"
-#include <format>
+
+
+
 
 
 using namespace std;
@@ -27,9 +29,9 @@ bool CheckByWorkshop(Station& station, int cent_non_active) {
 }
 
 template <typename Element, typename Parametr>
-set<int> Find_By_Filter(unordered_map<int, Element>& elements, Filter<Element, Parametr> filter, Parametr parametr)
+unordered_set<int> Find_By_Filter(unordered_map<int, Element>& elements, Filter<Element, Parametr> filter, Parametr parametr)
 {
-    set<int> result;
+    unordered_set<int> result;
     for (auto& element : elements)
     {
         if (filter(element.second, parametr))
@@ -39,11 +41,48 @@ set<int> Find_By_Filter(unordered_map<int, Element>& elements, Filter<Element, P
 }
 
 
+GTS::GTS(){}
 
-GTS::GTS()
-{}
+bool GTS::HasObject(const ObjectType obj)
+{
+    switch (obj)
+    {
+    case PIPE: {
+        if (pipes.size()) { return true; }
+        else { return false; }
+    }
+    case STATION: {
+        if (stations.size()) { return true; }
+        else { return false; }
+    }
+    default: {return false;}
+    }
+}
 
+std::unordered_set<int> GTS::GetIDs(const ObjectType obj)
+{
+    switch (obj) {
+    case PIPE: { return GetKeys(pipes); }
+    case STATION: { return GetKeys(stations); }
+    default: { return unordered_set<int>{}; }
+    }
+}
+    
+unordered_set<int> GetEditNumbers(unordered_set<int>& result)
+{
+    unordered_set<int> IDs;
+    int id;
+    int Max_ID = Pipe::GetMaxId();
+    if (!GetCorrectNumber(0, Max_ID)) { return result; }
+    do {
+        id = GetCorrectNumber(0, Max_ID);
+        if (result.contains(id)) {
+            IDs.insert(id);
+        }
+    } while (id != 0);
 
+    return IDs;
+}
 
 //---------------Создание объектов-------------------
 void GTS::CreatePipe()
@@ -52,7 +91,6 @@ void GTS::CreatePipe()
     pipe.WriteInfo();
     pipes.insert({ pipe.GetID(), pipe});
 }
-
 
 void GTS::CreateCS()
 {
@@ -63,852 +101,258 @@ void GTS::CreateCS()
 
 
 //---------------Показ объектов-------------------
-void GTS::View()
+void GTS::ViewPipes()
 {
-
-    while (1) {
-        ENTER;
-        cout << "0. Назад\n" <<
-            "1. Список труб\n" <<
-            "2. Список КС\n" <<
-            "3. Показать всё" << endl;
-
-
-        switch (GetCorrectNumber(cin, 0, 3)) {
-            case 1: {
-                ENTER;
-                cout << "----------Трубы-----------" << endl;
-                ViewComponents<Pipe>(pipes);
-
-                break;
-            }
-            case 2: {
-                ENTER;
-                cout << "----------Станции-----------" << endl;
-                ViewComponents<Station>(stations);
-
-                break;
-            }
-
-            case 3: {
-                ENTER;
-                cout << "----------Трубы-----------" << endl;
-                ViewComponents<Pipe>(pipes);
-                ENTER;
-                cout << "----------Станции-----------" << endl;
-                ViewComponents<Station>(stations);
-                ENTER;
-                break;
-            }
-
-            case 0: {
-                return;
-            }
-        }
-
-        return;
+    int i = 1;
+    for (auto& element : pipes) {
+        std::cout << i << ". ";
+        i++;
+        element.second.ShowInfo();
     }
 }
 
-
-//---------------Поиск объектов-------------------
-template <typename Struct>
-using Searching = set<int>(*)(Struct& structure);
-
-template <typename Struct>
-set<int> Search_By_Name(unordered_map<int, Struct>& structure)
+void GTS::ViewStations()
 {
-    string name = input_string(cin);
-   
-
-    set<int> result = Find_By_Filter<Struct, string>(structure, CheckByName, name);
-    return result;
-}
-
-template <typename Struct>set<int> Search_By_Status(unordered_map<int, Struct>& structure)
-{
-    set<int> result = Find_By_Filter<Struct, bool>(structure, CheckByStatus, GetCorrectNumber(cin, 0, 1));
-    return result;
-}
-
-template <typename Struct>
-set<int> Search_By_Workshop(unordered_map<int, Struct>& structure)
-{
-    set<int> result = Find_By_Filter<Struct, int>(structure, CheckByWorkshop, GetCorrectNumber(cin, 0, 100));
-    return result;
-}
-
-/*
-bool GTS::SearchPipe(Searching<Pipe> search)
-{
-    ENTER;
-    cout << "Введите имя трубы:" << endl;
-    vector<int> result = search(pipes);
-
-    if (!result.size())
-    {
-        cout << "Нет подходящих труб";
-        return false;
-    }
-
-    ViewComponentsByID(result, pipes);
-    return true;
-}
-*/
-
-void GTS::Search()
-{
-    cout << "1. Поиск труб\n"
-        << "2. Поиск станций\n"
-        << "0. Назад" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-    case 1:
-    {
-        SearchPipes();
-        break;
-    }
-    case 2:
-    {
-        SearchCS();
-        break;
-    }
-    case 0:
-    {
-        break;
-    }
+    int i = 1;
+    for (auto& element : stations) {
+        std::cout << i << ". ";
+        i++;
+        element.second.ShowInfo();
     }
 }
-
-void GTS::SearchPipes()
-{
-    cout << "Выберете фильтр поиска:" <<
-        "\n0.Выход в меню" <<
-        "\n1.По имени" <<
-        "\n2.По состоянию" << endl;
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            ENTER;
-            cout << "Введите имя трубы:" << endl;
-            set<int> result = Search_By_Name(pipes);
-
-            if (!result.size())
-            {
-                cout << "Нет подходящих труб";
-            }
-
-            ViewComponentsByID(result, pipes);
-            break;
-        }
-        case 2:
-        {
-            ENTER;
-            cout << "Введите состояние трубы:" << endl;
-            set<int> result = Search_By_Status(pipes);
-            if (!result.size())
-            {
-                cout << "Нет подходящих труб";
-                return;
-            }
-            ViewComponentsByID(result, pipes);
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-    }
-}
-
-void GTS::SearchCS()
-{
-    cout << "Выберете фильтр поиска:" <<
-        "\n0.Выход в меню" <<
-        "\n1.По имени" <<
-        "\n2.По проценту незадействованных цехов" << endl;
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            ENTER;
-            cout << "Введите имя станции:" << endl;
-            set<int> result = Search_By_Name(stations);
-            if (result.size())
-            {
-                for (auto& id : result) stations.at(id).ShowInfo();
-
-            }
-            else cout << "Нет подходящих станций";
-            break;
-        }
-        case 2:
-        {
-            ENTER;
-            cout << "Введите процент неактивых цехов станции:" << endl;
-            set<int> result = Search_By_Workshop(stations);
-            if (result.size())
-            {
-                for (auto& id : result) stations.at(id).ShowInfo();
-            }
-            else cout << "Нет подходящих станций";
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-    }
-}
-
 
 //---------------Редактирование-------------------
-void GTS::Edit()
-{
-    cout << "1. Редактирование труб\n"
-        << "2. Редактирование станций\n"
-        << "0. Назад" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            EditPipes();
-            break;
-        }
-        case 2:
-        {
-            EditCS();
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-    }
-}
-
-void GTS::EditPipes()
-{
-    if (!pipes.size())
-    {
-        cout << "Нет доступных труб!\n" << endl;
-        return;
-    }
-
-    cout << "1. Редактировать одну трубу по выбору\n"
-        << "2. Редактировать по фильтру\n"
-        << "0. Выход" << endl;
-
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            EditOnePipe();
-            break;
-        }
-        case 2:
-        {
-            EditSomePipes();
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-    }
-
-}
-void GTS::EditCS() {
-    if (!stations.size()) {
-        cout << "Нет доступных КС!\n" << endl;
-
-        return;
-    }
-
-    cout << "1. Редактировать одну станцию по выбору\n"
-        << "2. Редактировать по фильтру\n"
-        << "0. Выход" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            EditOneCS();
-            break;
-        }
-        case 2:
-        {
-            EditSomeCS();
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-    }
-
-}
-
-
-void GTS::EditOnePipe()
+void GTS::EditPipes(unordered_set<int>& IDs)
 {
     ENTER;
-    cout << "Список труб:\n";
-    ViewComponents(pipes);
-    cout << "Выберете редактируемую трубу:";
-    EditOne(pipes);
+    for (int id : IDs) { pipes.at(id).ShowInfo(); }
+
+    cout << "Изменить состояние труб(ы)?(0 - в ремонт, 1 - в рабочее состояние, 2 - изменить на противоположное)" << endl;
+    switch (GetCorrectNumber(0, 2))
+    {
+        case 0: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_REPAIR);}      return; }
+        case 1: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_WORK);}        return; }
+        case 2: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_OPPOSITE);  }  return; }
+        default: { return; }
+    }
 }
-void GTS::EditOneCS()
+
+void GTS::EditCS(unordered_set<int>& IDs)
 {
     ENTER;
-    cout << "Список станций:\n";
-    ViewComponents(stations);
-    cout << "Выберете редактируемую станцию:";
-    EditOne(stations);
+    for (int id : IDs) { stations.at(id).ShowInfo(); }
+    cout << "Изменить кол-во активных цехов станции(й) на(0-10): " << endl;
+    int ans = GetCorrectNumber(0, 10);
+    for (int id : IDs) { stations.at(id).Edit(ans); return; }
 }
 
-set<int> GetEditNumbers(istream& in, set<int> result)
+void GTS::Edit_ByName(const ObjectType obj)
 {
-    set<int> IDs;
-    int id;
-    int Max_ID = Pipe::GetMaxId();
-    do {
-        id = GetCorrectNumber(cin, 0, Max_ID);
-        if (result.contains(id)) {
-            IDs.insert(id);
+    switch (obj) {
+    case PIPE: {
+        ENTER;
+        cout << "Введите имя трубы:" << endl;
+        string name = input_string();
+        unordered_set<int> result = Find_By_Filter<Pipe, string>(pipes, CheckByName, name);
+        if (result.size())
+        {
+            for (int id : result) { pipes.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            EditPipes(numbers);
         }
-    } while (id != 0);
+        else cout << "Нет подходящих труб";
+        break;
+    }
+    case STATION: {
+        ENTER;
+        cout << "Введите имя станции:" << endl;
+        string name = input_string();
+        unordered_set<int> result = Find_By_Filter<Station, string>(stations, CheckByName, name);
+        if (result.size())
+        {
+            for (int id : result) { stations.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            EditCS(numbers);
+        }
+        else cout << "Нет подходящих станций";
+        break;
+    }
+    default: { return; }
+    }
 
-    return IDs;
 }
 
-
-void GTS::EditSomePipes()
-{
-    if (!pipes.size())
-    {
-        cout << "Нет доступных труб!";
-        return;
+void GTS::Edit_ByParametr(const ObjectType obj){
+    switch (obj) {
+    case PIPE: {
+        ENTER;
+        cout << "Введите состояние трубы:(0 - в ремонте, 1 - работает)" << endl;
+        unordered_set<int> result = Find_By_Filter<Pipe, bool>(pipes, CheckByStatus, GetCorrectNumber(0, 1));
+        if (result.size())
+        {
+            for (int id : result) { pipes.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            EditPipes(numbers);
+        }
+        else cout << "Нет подходящих труб";
+        break;
     }
-
-    cout << "Выберете фильтр поиска:" <<
-        "\n1.По имени" <<
-        "\n2.По состоянию" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
+    case STATION: {
+        ENTER;
+        cout << "Введите процент неактивых цехов станции:" << endl;
+        unordered_set<int> result = Find_By_Filter<Station, int>(stations, CheckByWorkshop, GetCorrectNumber(0, 100));
+        if (result.size())
         {
-            ENTER;
-            cout << "Введите имя трубы:" << endl;
-            set<int> result = Search_By_Name(pipes);
-            if (result.size())
-            { 
-                for (auto& id : result) pipes.at(id).ShowInfo();
-
-                cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) pipes.at(id).ShowInfo();
-
-                cout << "Изменить состояние трубы(0 - нет, 1 - да)" << endl;
-                int answer = GetCorrectNumber(cin, 0, 1);
-                if (numbers.empty())
-                {
-                    for (auto& id : result) pipes.at(id).Edit(answer);
-                }
-                else
-                {
-                    for (auto& id : numbers) pipes.at(id).Edit(answer);
-                    
-                }
-                
-            }
-            else cout << "Нет подходящих труб";
-            break;
+            for (int id : result) { stations.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            EditCS(numbers);
         }
-        case 2:
-        {
-            ENTER;
-            cout << "Введите состояние трубы:" << endl;
-            set<int> result = Search_By_Status(pipes);
-            if (result.size())
-            {
-                for (auto& id : result) pipes.at(id).ShowInfo();
-
-                cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) pipes.at(id).ShowInfo();
-
-                cout << "Изменить состояние трубы(0 - нет, 1 - да)" << endl;
-                int answer = GetCorrectNumber(cin, 0, 1);
-                if (numbers.empty())
-                {
-                    for (auto& id : result) pipes.at(id).Edit(answer);
-                }
-                else
-                {
-                    for (auto& id : numbers) pipes.at(id).Edit(answer);
-
-                }
-            }
-            else cout << "Нет подходящих труб";
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
+        else cout << "Нет подходящих станций";
+        break;
     }
-}
-
-void GTS::EditSomeCS()
-{
-    if (!pipes.size())
-    {
-        cout << "Нет доступных станций!";
-        return;
-    }
-
-    cout << "Выберете фильтр поиска:"<<
-        "\n0.Выход в меню" <<
-        "\n1.По имени" << 
-        "\n2.По проценту незадействованных цехов" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            ENTER;
-            cout << "Введите имя станции:" << endl;
-            set<int> result = Search_By_Name(stations);
-            if (result.size())
-            {
-                for (auto& id : result) stations.at(id).ShowInfo();
-                
-                cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) stations.at(id).ShowInfo();
-
-                cout << "Изменить количество активных цехов на:(0 - 10)" << endl;
-                int answer = GetCorrectNumber(cin, 0, 10);
-                if (numbers.empty())
-                {
-                    for (auto& id : result) stations.at(id).Edit(answer);
-                }
-                else
-                {
-                    for (auto& id : numbers) stations.at(id).Edit(answer);
-
-                }
-            }
-            else cout << "Нет подходящих станций";
-            break;
-        }
-        case 2:
-        {
-            ENTER;
-            cout << "Введите процент неактивых цехов станции:" << endl;
-            set<int> result = Search_By_Workshop(stations);
-            if (result.size())
-            {
-                for (auto& id : result) stations.at(id).ShowInfo();
-
-                cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) stations.at(id).ShowInfo();
-
-                cout << "Изменить количество активных цехов на:(0 - 10)" << endl;
-                int answer = GetCorrectNumber(cin, 0, 10);
-                if (numbers.empty())
-                {
-                    for (auto& id : result) stations.at(id).Edit(answer);
-                }
-                else
-                {
-                    for (auto& id : numbers) stations.at(id).Edit(answer);
-
-                }
-            }
-            else cout << "Нет подходящих станций";
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
+    default: { return; }
     }
 }
 
 //---------------Удаление-------------------
-void GTS::Delete()
+void GTS::DeletePipes(unordered_set<int>& IDs) { for (auto& id : IDs) pipes.erase(id); }
+void GTS::DeleteStations(unordered_set<int>& IDs) { for (auto& id : IDs) stations.erase(id); }
+
+void GTS::Delete_ByName(const ObjectType obj)
 {
-    cout << "1. Удаление труб\n"
-        << "2. Удаление станций\n"
-        << "0. Назад" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-    case 1:
-    {
-        DeletePipes();
-        break;
-    }
-    case 2:
-    {
-        DeleteStations();
-        break;
-    }
-    case 0:
-    {
-        break;
-    }
-    }
-}
-
-void GTS::DeletePipes()
-{
-    if (!pipes.size())
-    {
-        cout << "Нет доступных труб!\n" << endl;
-        return;
-    }
-
-    cout << "1. Удалить одну трубу по выбору\n"
-        << "2. Удалить по фильтру\n"
-        << "0. Выход" << endl;
-
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            ENTER;
-            cout << "Список труб:\n";
-            ViewComponents(pipes);
-            auto keys = GetKeys(pipes);
-            cout << "Удаляемую трубу:";
-            DeletePipes(keys);
-            break;
-        }
-        case 2:
-        {
-            DeleteSomePipes();
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-    }
-}
-
-void GTS::DeletePipes(std::vector<int>& ids)
-{
-    int number = GetCorrectNumber<int>(std::cin, 1, ids.size());
-    pipes.erase(ids[number-1]);
-}
-
-void GTS::DeleteStations()
-{
-    if (!pipes.size())
-    {
-        cout << "Нет доступных станций!\n" << endl;
-        return;
-    }
-
-    cout << "1. Удалить одну станцию по выбору\n"
-        << "2. Удалить по фильтру\n"
-        << "0. Выход" << endl;
-
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-    case 1:
-    {
+    switch (obj) {
+    case PIPE: {
         ENTER;
-        cout << "Список станций:\n";
-        ViewComponents(stations);
-        cout << "Удаляемую станцию:";
-        auto keys = GetKeys(stations);
-        DeleteStations(keys);
+        cout << "Введите имя трубы:" << endl;
+        string name = input_string();
+        unordered_set<int> result = Find_By_Filter<Pipe, string>(pipes, CheckByName, name);
+        if (result.size())
+        {
+            for (int id : result) { pipes.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            DeletePipes(numbers);
+        }
+        else cout << "Нет подходящих труб";
         break;
     }
-    case 2:
-    {
-        DeleteSomeStations();
+    case STATION: {
+        ENTER;
+        cout << "Введите имя станции:" << endl;
+        string name = input_string();
+        unordered_set<int> result = Find_By_Filter<Station, string>(stations, CheckByName, name);
+        if (result.size())
+        {
+            for (int id : result) { stations.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            DeleteStations(numbers);
+        }
+        else cout << "Нет подходящих станций";
         break;
     }
-    case 0:
-    {
+    default: { return; }
+    }
+
+}
+
+void GTS::Delete_ByParametr(const ObjectType obj) {
+    switch (obj) {
+    case PIPE: {
+        ENTER;
+        cout << "Введите состояние трубы:(0 - в ремонте, 1 - работает)" << endl;
+        unordered_set<int> result = Find_By_Filter<Pipe, bool>(pipes, CheckByStatus, GetCorrectNumber(0, 1));
+        if (result.size())
+        {
+            for (int id : result) { pipes.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            DeletePipes(numbers);
+        }
+        else cout << "Нет подходящих труб";
         break;
     }
+    case STATION: {
+        ENTER;
+        cout << "Введите процент неактивых цехов станции:" << endl;
+        unordered_set<int> result = Find_By_Filter<Station, int>(stations, CheckByWorkshop, GetCorrectNumber(0, 100));
+        if (result.size())
+        {
+            for (int id : result) { stations.at(id).ShowInfo(); }
+            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result);
+            DeleteStations(numbers);
+        }
+        else cout << "Нет подходящих станций";
+        break;
     }
-}
-
-void GTS::DeleteStations(std::vector<int>& ids)
-{
-    int number = GetCorrectNumber<int>(std::cin, 1, ids.size());
-    stations.erase(ids[number - 1]);
-}
-
-void GTS::DeleteSomePipes()
-{
-    if (!pipes.size())
-    {
-        cout << "Нет доступных труб!";
-        return;
-    }
-
-    cout << "Выберете фильтр поиска:" <<
-        "\n0.Выход в меню" <<
-        "\n1.По имени" <<
-        "\n2.По состоянию" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            ENTER;
-            cout << "Введите имя трубы:" << endl;
-            set<int> result = Search_By_Name(pipes);
-            if (result.size())
-            {
-                for (auto& id : result) pipes.at(id).ShowInfo();
-
-                cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) pipes.at(id).ShowInfo();
-
-                if (numbers.empty())
-                {
-                    for (auto& id : result) pipes.erase(id);
-                }
-                else
-                {
-                    for (auto& id : numbers) pipes.erase(id);
-                }
-
-                cout << "Трубы удалены!" << endl;
-            }
-            else cout << "Нет подходящих труб";
-            break;
-        }
-        case 2:
-        {
-            ENTER;
-            cout << "Введите состояние трубы:" << endl;
-            set<int> result = Search_By_Status(pipes);
-            if (result.size())
-            {
-                for (auto& id : result) pipes.at(id).ShowInfo();
-
-                cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) pipes.at(id).ShowInfo();
-
-
-                if (numbers.empty())
-                {
-                    for (auto& id : result) pipes.erase(id);
-                }
-                else
-                {
-                    for (auto& id : numbers) pipes.erase(id);
-                }
-                cout << "Трубы удалены!" << endl;
-            }
-            else cout << "Нет подходящих труб";
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-    }
-}
-void GTS::DeleteSomeStations()
-{
-    if (!pipes.size())
-    {
-        cout << "Нет доступных станций!";
-        return;
-    }
-
-    cout << "Выберете фильтр поиска:" <<
-        "\n0.Выход в меню" <<
-        "\n1.По имени" <<
-        "\n2.По проценту незадействованных цехов" << endl;
-
-    switch (GetCorrectNumber(cin, 0, 2))
-    {
-        case 1:
-        {
-            ENTER;
-            cout << "Введите имя станции:" << endl;
-            set<int> result = Search_By_Name(stations);
-            if (result.size())
-            {
-                for (auto& id : result) stations.at(id).ShowInfo();
-
-                cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) stations.at(id).ShowInfo();
-
-                if (numbers.empty())
-                {
-                    for (auto& id : result) stations.erase(id);
-                }
-                else
-                {
-                    for (auto& id : numbers) stations.erase(id);
-                }
-                cout << "Станции удалены!" << endl;
-            }
-            else cout << "Нет подходящих станций";
-            break;
-        }
-        case 2:
-        {
-            ENTER;
-            cout << "Введите процент неактивых цехов станции:" << endl;
-            set<int> result = Search_By_Workshop(stations);
-            if (result.size())
-            {
-                for (auto& id : result) stations.at(id).ShowInfo();
- 
-                cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-                set<int> numbers = GetEditNumbers(cin, result);
-
-                ENTER;
-                for (auto& id : numbers) stations.at(id).ShowInfo();
-
-                if (numbers.empty())
-                {
-                    for (auto& id : result) stations.erase(id);
-                }
-                else
-                {
-                    for (auto& id : numbers) stations.erase(id);
-                }
-                cout << "Станции удалены!" << endl;
-            }
-            else cout << "Нет подходящих станций";
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
+    default: { return; }
     }
 }
 
 //---------------Сохранение-Загрузка-------------------
 void GTS::SaveConfiguration() 
 {
-    if (pipes.size() or stations.size()) {
+    if (HasObject(PIPE) or HasObject(STATION)){
         cout << "Введите название сохранения:" << endl;
-        string name = input_string(cin);
+        string name = input_string();
         name = "Saves/" + name + ".txt";
-
-        int MaxId_Pipe;
-        int MaxId_Station;
-        for (auto& pipe : pipes) 
-        {
-            MaxId_Pipe = pipe.second.GetMaxId();
-            break;
-        }
-        for (auto& station : stations)
-        {
-            MaxId_Station = station.second.GetMaxId();
-            break;
-        }
 
         ofstream file;
         file.open(name, ios::out);
         file << pipes.size() << " " << stations.size() << endl;
-        for (auto& pipe : pipes)
-            file << pipe.second;
-        for (auto& station : stations)
-            file << station.second;
+        for (auto& pipe : pipes) { file << pipe.second; }
+        for (auto& station : stations) { file << station.second; };
         file.close();
-
         ENTER;
         cout << "Успешно сохранено!" << endl;
     }
-
-    else
-    {
-        ENTER; cout << "Сохранение не может быть пустым, запишите данные!" << endl;
-    }
+    else { ENTER; cout << "Сохранение не может быть пустым, запишите данные!" << endl; }
 }
 
 void GTS::LoadConfiguration() {
     ENTER;
     ifstream file;
     std::string path = "Saves\\";
+    vector<std::filesystem::directory_entry> names;
     int count = 0;
-    for (auto& name : filesystem::directory_iterator(path)) {
+    for (auto& name: filesystem::directory_iterator(path)) {
         count++;
+        names.push_back(name);
         cout << count << ". " << name << endl;
-        //std::format(name);
     }
 
     ENTER;
     cout << "Выберете номер сохранения" << endl;
-    int save = GetCorrectNumber(cin, 1, count);
+    int save = GetCorrectNumber(1, count);
 
-    count = 0;
-    for (auto& name : filesystem::directory_iterator(path)) {
-        count++;
-        if (count == save) {
-            pipes.clear();
-            stations.clear();
+    pipes.clear();
+    stations.clear();
+    Pipe pipe;
+    Station station;
+    int count_pipes;
+    int count_cs;
 
-            Pipe pipe;
-            Station station;
+    file.open(names[save-1]);
+    file >> count_pipes >> count_cs;
 
-            int count_pipes;
-            int count_cs;
-
-            file.open(name);
-            file >> count_pipes >> count_cs;
-
-
-            while(count_pipes--)
-           // for (count_pipes; count_pipes > 0; count_pipes--)
-            {
-                file >> pipe;
-                pipes.insert({ pipe.GetID(), pipe });
-            }
-
-            
-            for (count_cs; count_cs > 0; count_cs--)
-            {
-                file >> station;
-                stations.insert({ station.GetID(), station });
-            }
-
-            cout << "Файлы загружены!\n" << endl;
-            break;
-        }
+    while(count_pipes--)
+    {
+        file >> pipe;
+        pipes.insert({ pipe.GetID(), pipe });
     }
+    while (count_cs--)
+    {
+        file >> station;
+        stations.insert({ station.GetID(), station });
+    }
+
+    cout << "Файлы загружены!\n" << endl;
+    file.close();
+
+
 }

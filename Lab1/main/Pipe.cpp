@@ -4,6 +4,9 @@ using namespace std;
 
 int Pipe::MaxId = 0;
 
+vector<int> Pipe::possible_diameters = {500, 700, 1000, 1400};
+
+
 // Конструктор трубы
 Pipe::Pipe() 
 {
@@ -26,48 +29,37 @@ Pipe::Pipe(string name, float length, int diameter, bool in_repair) {
 void Pipe::WriteInfo() {
     ENTER;
     cout << "Введите название трубы:" << endl;
-    name = input_string(cin);
+    name = input_string();
 
 
     cout << "Введите длину трубы(м):" << endl;
-    length = GetCorrectNumber(cin, 1.0, 100000000.);
+    length = GetCorrectNumber(1.0, 100000000.);
 
-    cout << "Введите диаметр трубы(мм):" << endl;
-    diameter = GetCorrectNumber(cin, 100, 1400);
+    cout << "Выберете диаметр трубы:" << endl;
+    diameter = SwitchNumber(possible_diameters);
 
     cout << "Введите состояние трубы:(0 - в ремонте; 1 - в эксплуатации)" << endl;
-    if (cin,GetCorrectNumber(cin, 0, 1)) {
-        in_repair = true;
-    }
-    else {
-        in_repair = false;
-    }
+
+    if (GetCorrectNumber(0, 1)) { in_repair = true; }
+    else { in_repair = false;}
 }
 
 // Просмотр информации трубы
 void Pipe::ShowInfo() {
-    string sostoyanie = in_repair ? " работает " : " в ремонте";
+    string status = in_repair ? " работает " : " в ремонте";
     cout << "Труба " << name << "; Длина: " << length << "; Диаметр: " << diameter
-        << "; Состояние:" << sostoyanie <<"; Id: " << ID << endl;
+        << "; Состояние:" << status <<"; Id: " << ID << endl;
 }
 
 
-void Pipe::Edit(int status) {
-    if (status) in_repair = !in_repair;
+void Pipe::Edit(const Action act) {
+    switch (act) {
+    case SET_WORK: { in_repair = true; return; }
+    case SET_REPAIR: { in_repair = false; return; }
+    case SET_OPPOSITE: { in_repair = !in_repair; return; }
+    default: {return;}
+    }
 }
-
-
-// Редактирование трубы
-void Pipe::Edit()
-{
-    ENTER;
-    ShowInfo();
-    cout << "Изменить состояние трубы?(0 - нет, 1 - да)" << endl;
-    Edit(GetCorrectNumber(cin, 0, 1));
-}
-
-
-
 
 ofstream& operator << (ofstream& file, const Pipe& pipe) {
     if (file.is_open()) {

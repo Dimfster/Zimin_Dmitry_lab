@@ -1,90 +1,51 @@
 #pragma once
-
-#include "Utilites.h"
+#include <unordered_map>
 #include "Pipe.h"
 #include "Station.h"
 
 
 class GTS
 {
-
-    std::unordered_map<int, Pipe> pipes;
-    std::unordered_map<int, Station> stations;
-
-
 public:
-    
+    enum ObjectType { PIPE, STATION };
+    bool HasObject(const ObjectType obj);
+
+    std::unordered_set<int> GetIDs (const ObjectType obj);
+
     GTS();
-    //---------------Создание объектов-------------------
+    //---------------Создание объектов----------------
     void CreatePipe();
     void CreateCS();
 
     //---------------Показ объектов-------------------
-    void View();
-
-    template <typename Struct>
-    void ViewComponents(std::unordered_map<int, Struct>& conteiner)
-    {
-        int i = 1;
-        for (auto& element : conteiner) {
-            std::cout << i << ". ";
-            i++;
-            element.second.ShowInfo();
-        }
-    }
-
-    template <typename Struct>
-    void ViewComponentsByID(std::set<int> IDs, std::unordered_map<int, Struct>& conteiner)
-    {
-        int i = 1;
-        for (auto& id : IDs) {
-            std::cout << i << ". ";
-            i++;
-            conteiner.at(id).ShowInfo();
-        }
-    }
-
-
-    //---------------Поиск объектов-------------------
-    void Search();
-    void SearchPipes();
-    void SearchCS();
+    void ViewPipes();
+    void ViewStations();
 
     //---------------Редактирование-------------------
-    void Edit();
+    void EditPipes(std::unordered_set<int>& IDs);
+    void EditCS(std::unordered_set<int>& IDs);
 
-    void EditPipes();
-    void EditCS();
+    void Edit_ByName(const ObjectType obj);
 
-    void EditOnePipe();
-    void EditOneCS();
-    void EditSomePipes();
-    void EditSomeCS();
-
-    template <typename Struct>
-    void EditOne(std::unordered_map<int, Struct>& structure)
-    {
-        auto keys = GetKeys(structure);
-        int number = GetCorrectNumber<int>(std::cin, 1, keys.size())-1;
-        structure[keys[number]].Edit();
-    }
-
-
-
+    void Edit_ByParametr(const ObjectType obj);
     //---------------Удаление-------------------
-    void Delete();
-    void DeletePipes();
-    void DeleteStations();
+    void DeletePipes(std::unordered_set<int>& IDs);
+    void DeleteStations(std::unordered_set<int>& IDs);
 
 
     void DeletePipes(std::vector<int>& ids);
     void DeleteStations(std::vector<int>& ids);
 
-    void DeleteSomePipes();
-    void DeleteSomeStations();
+    void Delete_ByName(const ObjectType obj);
+
+    void Delete_ByParametr(const ObjectType obj);
 
     //---------------Сохранение-Загрузка-------------------
     void SaveConfiguration();
     void LoadConfiguration();
 
+
+private:
+    std::unordered_map<int, Pipe> pipes;
+    std::unordered_map<int, Station> stations;
 };

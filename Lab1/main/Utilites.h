@@ -1,18 +1,10 @@
 #pragma once
-#include <iostream> // Поток Ввода-вывода
-#include <fstream> // Файловый поток
+#include <iostream>
+#include <fstream>
 #include <string> 
 #include <vector>
+#include <unordered_set>
 #include <unordered_map>
-#include <map>
-#include <set>
-#include <algorithm>
-
-#include <Windows.h> // Системная библиотека(для очистки командоной строки и ввода любой клавиши)
-#include <conio.h>
-#include <sstream>
-#include <filesystem>
-#include <format>
 
 
 #define ENTER std::cout << std::endl << std::endl;
@@ -40,10 +32,10 @@ public:
 };
 
 
-inline std::string input_string(std::istream& in)
+inline std::string input_string()
 {
-    in.ignore(1000000, '\n');
-    in >> std::ws;
+    std::cin.ignore(1000000, '\n');
+    std::cin >> std::ws;
     std::string str;
     std::getline(std::cin, str);
 
@@ -55,15 +47,15 @@ inline std::string input_string(std::istream& in)
 
 // Функция проверки значения
 template <typename T>
-T GetCorrectNumber(std::istream& in, T min, T max)
+T GetCorrectNumber(T min, T max)
 {
     T x;
-    while ((in >> x).fail()	
-        || in.peek() != '\n'
+    while ((std::cin >> x).fail()	
+        || std::cin.peek() != '\n'
         || x < min || x > max)		
     {
-        in.clear();
-        in.ignore(10000, '\n');
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
         std::cout << "\nНеверный ввод данных!" << std::endl;
         std::cout << "Введите число от " << min << " до " << max << std::endl;
     }
@@ -72,30 +64,24 @@ T GetCorrectNumber(std::istream& in, T min, T max)
 }
 
 
-
-// Используется для удобства выбора в консоли
-template <typename T>
-std::vector<int> GetKeys(const std::unordered_map<int, T>& container)
+inline int SwitchNumber(std::vector<int>& conteiner)
 {
-    std::vector<int> keys;
-    keys.reserve(container.size());
-    int i = 0;
+    for (int i = 0; i < conteiner.size(); i++)
+    {
+        std::cout << i+1 << ". " << conteiner[i] << std::endl;
+    }
+    int answer = GetCorrectNumber(1, (int)conteiner.size());
+    return conteiner[ answer - 1];
+}
+
+
+ // Используется для удобства выбора в консоли
+template <typename T>
+std::unordered_set<int> GetKeys(const std::unordered_map<int, T>& container)
+{
+    std::unordered_set<int> keys;
     for (auto& [id, element] : container) 
-        keys.push_back(id);
+        keys.insert(id);
     return keys;
 }
 
- 
-//---------------Выбор функции-------------------
-using Function = void(*)();
-
-inline void Switch(std::vector<Function> functions)
-{
-    int size = functions.size();
-    int answer = GetCorrectNumber(std::cin, 0, size);
-    if (answer)
-    {
-        functions[answer - 1]();
-    }
-    return;
-}
