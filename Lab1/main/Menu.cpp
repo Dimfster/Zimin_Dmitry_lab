@@ -70,7 +70,7 @@ void EditOneStation(GTS& GasSystem) {
     int number = GetCorrectNumber<int>(1, INT_MAX);
     if (!keys.contains(number)) { cout << "Нет станции с подходящим ID!" << endl; return; }
     unordered_set<int> key = { number };
-    GasSystem.EditCS(key);
+    GasSystem.EditStations(key);
 }
 
 void Edit_Pipes(GTS& GasSystem){
@@ -107,7 +107,7 @@ void Edit_Pipes(GTS& GasSystem){
     }
 }
 
-void Edit_CS(GTS& GasSystem)
+void Edit_Stations(GTS& GasSystem)
 {
     if (!GasSystem.HasObject(GTS::STATION))
     {
@@ -126,7 +126,7 @@ void Edit_CS(GTS& GasSystem)
     case 2:{
         cout << "Выберете фильтр поиска:" <<
             "\n1.По имени" <<
-            "\n2.По состоянию" <<
+            "\n2.По проценту неактивых цехов станции" <<
             "\n0.Выход"; ENTER;
 
         switch (GetCorrectNumber(0, 2)){
@@ -157,7 +157,7 @@ void Edit_Menu(GTS& GasSystem)
     switch (GetCorrectNumber(0, 2))
     {
         case 1:{ Edit_Pipes(GasSystem); break; }
-        case 2:{ Edit_CS(GasSystem); break; }
+        case 2:{ Edit_Stations(GasSystem); break; }
         case 0: { break; }
     }
 }
@@ -229,7 +229,7 @@ void Delete_Stations(GTS& GasSystem)
 {
     if (!GasSystem.HasObject(GTS::STATION)) { cout << "Нет доступных станций!" << endl; return; }
 
-    cout << "1. Удалить одну трубу по выбору\n"
+    cout << "1. Удалить одну станцию по выбору\n"
         << "2. Удалить по фильтру\n"
         << "0. Выход"; ENTER;
 
@@ -239,12 +239,12 @@ void Delete_Stations(GTS& GasSystem)
         case 2: {
             cout << "Выберете фильтр поиска:" <<
                 "\n1.По имени" <<
-                "\n2.По состоянию"; ENTER;
+                "\n2.По проценту неактивых цехов станции"; ENTER;
 
             switch (GetCorrectNumber(0, 2))
             {
-                case 1:{ GasSystem.Delete_ByName(GTS::PIPE); break; }
-                case 2:{ GasSystem.Delete_ByParametr(GTS::PIPE); break; }
+                case 1:{ GasSystem.Delete_ByName(GTS::STATION); break; }
+                case 2:{ GasSystem.Delete_ByParametr(GTS::STATION); break; }
                 case 0: { break; }
             }
             break;
@@ -267,6 +267,32 @@ void Delete_Menu(GTS& GasSystem)
     }
 }
 
+//---------------Удаление-------------------
+void Create_Connection(GTS& GasSystem) {
+    GasSystem.CreateСonnection();
+}
+
+void Delete_Connection() {
+
+}
+
+void Graph_Menu(GTS& GasSystem) {
+    ENTER;
+    cout << "1. Показать связи\n" <<
+        "2. Добавить связь\n" <<
+        "3. Удалить связь\n" <<
+        "4. Топологическая сортировка\n" <<
+        "0. Выход\n" << endl;
+
+    switch (GetCorrectNumber(0, 4)) {
+        case 1: { GasSystem.ViewСonnections(); break; }
+        case 2: { GasSystem.CreateСonnection(); break; }
+        case 3: { GasSystem.DeleteСonnection(); break; }
+        case 4: { GasSystem.TopologicalSort(); break; }
+        case 0: { return; }
+    }
+}
+
 
 void MainMenu(GTS& GasSystem)
 {
@@ -274,14 +300,15 @@ void MainMenu(GTS& GasSystem)
         ENTER;
         cout << "\n1. Добавить трубу\n" <<
             "2. Добавить КС\n" <<
-            "3. Просмотр всех объектов\n" <<
+            "3. Просмотр объектов\n" <<
             "4. Редактирование\n" <<
             "5. Удаление\n" <<
-            "6. Сохранить\n" <<
-            "7. Загрузить\n" <<
+            "6. Граф\n" <<
+            "7. Сохранить\n" <<
+            "8. Загрузить\n" <<
             "0. Выход\n" << endl;
 
-        switch (GetCorrectNumber(0, 7))
+        switch (GetCorrectNumber(0, 8))
         {
         case 1: { GasSystem.CreatePipe(); break; }
         
@@ -293,9 +320,11 @@ void MainMenu(GTS& GasSystem)
 
         case 5: { Delete_Menu(GasSystem); break; }
 
-        case 6: { GasSystem.SaveConfiguration(); break; }
+        case 6: { Graph_Menu(GasSystem); break; }
 
-        case 7: { GasSystem.LoadConfiguration(); break; }
+        case 7: { GasSystem.SaveConfiguration(); break; }
+
+        case 8: { GasSystem.LoadConfiguration(); break; }
 
         case 0: { return;}
         }

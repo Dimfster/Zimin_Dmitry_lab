@@ -44,6 +44,23 @@ void Pipe::WriteInfo() {
     else { in_repair = false;}
 }
 
+void Pipe::WriteInfo_WithStateDiameter(int diameter) {
+    ENTER;
+    cout << "Введите название трубы:" << endl;
+    name = input_string();
+
+
+    cout << "Введите длину трубы(м):" << endl;
+    length = GetCorrectNumber(1.0, 100000000.);
+
+    this->diameter = diameter;
+
+    cout << "Введите состояние трубы:(0 - в ремонте; 1 - в эксплуатации)" << endl;
+
+    if (GetCorrectNumber(0, 1)) { in_repair = true; }
+    else { in_repair = false; }
+}
+
 // Просмотр информации трубы
 void Pipe::ShowInfo() {
     string status = in_repair ? " работает " : " в ремонте";

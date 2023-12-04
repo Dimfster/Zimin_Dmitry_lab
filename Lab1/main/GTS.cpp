@@ -3,7 +3,8 @@
 #include "Utilites.h"
 #include "GTS.h"
 
-
+#define MIN_ID_PIPE  1
+#define MIN_ID_STATION 1001
 
 
 
@@ -24,9 +25,15 @@ bool CheckByStatus(Pipe& pipe, bool in_repair) {
     return pipe.in_repair == in_repair;
 }
 
+bool CheckByDiameter(Pipe& pipe, int diameter) {
+    return pipe.GetDiameter() == diameter;
+}
+
 bool CheckByWorkshop(Station& station, int cent_non_active) {
     return station.GetUnactiveWorkshop() >= cent_non_active;
 }
+
+
 
 template <typename Element, typename Parametr>
 unordered_set<int> Find_By_Filter(unordered_map<int, Element>& elements, Filter<Element, Parametr> filter, Parametr parametr)
@@ -40,6 +47,7 @@ unordered_set<int> Find_By_Filter(unordered_map<int, Element>& elements, Filter<
     return result;
 }
 
+//---------------Утилиты-------------------
 
 GTS::GTS(){}
 
@@ -59,7 +67,7 @@ bool GTS::HasObject(const ObjectType obj)
     }
 }
 
-std::unordered_set<int> GTS::GetIDs(const ObjectType obj)
+unordered_set<int> GTS::GetIDs(const ObjectType obj)
 {
     switch (obj) {
     case PIPE: { return GetKeys(pipes); }
@@ -68,12 +76,18 @@ std::unordered_set<int> GTS::GetIDs(const ObjectType obj)
     }
 }
     
-unordered_set<int> GetEditNumbers(unordered_set<int>& result)
+unordered_set<int> GTS::GetEditNumbers(unordered_set<int>& result, const GTS::ObjectType obj)
 {
     unordered_set<int> IDs;
     int id;
-    int Max_ID = Pipe::GetMaxId();
-    if (!GetCorrectNumber(0, Max_ID)) { return result; }
+    int Max_ID;
+    switch (obj) {
+    case GTS::PIPE: { Max_ID = Pipe::GetMaxId(); break; }
+    case GTS::STATION: { Max_ID = Station::GetMaxId(); break; }
+    }
+    id = GetCorrectNumber(0, Max_ID);
+    if (id == 0) { return result; }
+    else { IDs.insert(id); }
     do {
         id = GetCorrectNumber(0, Max_ID);
         if (result.contains(id)) {
@@ -84,12 +98,35 @@ unordered_set<int> GetEditNumbers(unordered_set<int>& result)
     return IDs;
 }
 
+unordered_set<int> GTS::GetFreePipes(const unordered_set<int>& IDs){
+    unordered_set<int> free_IDs;
+    for (auto& id : IDs) {
+        if (!graph.edges.contains(id)) {
+            free_IDs.insert(id);
+        }
+    }
+    return free_IDs;
+}
+
+int GTS::InputExistIdStation() {
+    int id;
+    do {
+        id = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
+        if (!stations.contains(id)) { cout << "Нет такой станции!" << endl; }
+    } while (!stations.contains(id));
+    return id;
+}
+
 //---------------Создание объектов-------------------
-void GTS::CreatePipe()
-{
+void GTS::CreatePipe(){
     Pipe pipe;
     pipe.WriteInfo();
     pipes.insert({ pipe.GetID(), pipe});
+}
+
+void GTS::CreateStateDiameterPipe(Pipe& pipe, int diameter){
+    pipe.WriteInfo_WithStateDiameter(diameter);
+    pipes.insert({ pipe.GetID(), pipe });
 }
 
 void GTS::CreateCS()
@@ -121,29 +158,39 @@ void GTS::ViewStations()
     }
 }
 
+void GTS::ViewObjects(std::unordered_set<int> result, const GTS::ObjectType obj)
+{
+    switch (obj) {
+    case PIPE: { for (int id : result) { pipes.at(id).ShowInfo(); }; return; }
+    case STATION: { for (int id : result) { stations.at(id).ShowInfo(); }; return; }
+    default: { return; }
+    }
+}
+
 //---------------Редактирование-------------------
 void GTS::EditPipes(unordered_set<int>& IDs)
 {
     ENTER;
-    for (int id : IDs) { pipes.at(id).ShowInfo(); }
-
+    ViewObjects(IDs, PIPE);
     cout << "Изменить состояние труб(ы)?(0 - в ремонт, 1 - в рабочее состояние, 2 - изменить на противоположное)" << endl;
     switch (GetCorrectNumber(0, 2))
     {
-        case 0: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_REPAIR);}      return; }
-        case 1: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_WORK);}        return; }
-        case 2: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_OPPOSITE);  }  return; }
+        case 0: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_REPAIR);}      break; }
+        case 1: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_WORK);}        break; }
+        case 2: { for (int id : IDs) { pipes.at(id).Edit(Pipe::SET_OPPOSITE);  }  break; }
         default: { return; }
     }
+    cout << endl << "Состояние изменено!" << endl;
 }
 
-void GTS::EditCS(unordered_set<int>& IDs)
+void GTS::EditStations(unordered_set<int>& IDs)
 {
     ENTER;
-    for (int id : IDs) { stations.at(id).ShowInfo(); }
+    ViewObjects(IDs, STATION);
     cout << "Изменить кол-во активных цехов станции(й) на(0-10): " << endl;
     int ans = GetCorrectNumber(0, 10);
-    for (int id : IDs) { stations.at(id).Edit(ans); return; }
+    for (int id : IDs) { stations.at(id).Edit(ans); }
+    cout << endl << "Состояние изменено!" << endl;
 }
 
 void GTS::Edit_ByName(const ObjectType obj)
@@ -156,9 +203,9 @@ void GTS::Edit_ByName(const ObjectType obj)
         unordered_set<int> result = Find_By_Filter<Pipe, string>(pipes, CheckByName, name);
         if (result.size())
         {
-            for (int id : result) { pipes.at(id).ShowInfo(); }
+            ViewObjects(result, PIPE);
             cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
+            unordered_set<int> numbers = GetEditNumbers(result, PIPE);
             EditPipes(numbers);
         }
         else cout << "Нет подходящих труб";
@@ -171,10 +218,10 @@ void GTS::Edit_ByName(const ObjectType obj)
         unordered_set<int> result = Find_By_Filter<Station, string>(stations, CheckByName, name);
         if (result.size())
         {
-            for (int id : result) { stations.at(id).ShowInfo(); }
+            ViewObjects(result, STATION);
             cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
-            EditCS(numbers);
+            unordered_set<int> numbers = GetEditNumbers(result, STATION);
+            EditStations(numbers);
         }
         else cout << "Нет подходящих станций";
         break;
@@ -192,9 +239,9 @@ void GTS::Edit_ByParametr(const ObjectType obj){
         unordered_set<int> result = Find_By_Filter<Pipe, bool>(pipes, CheckByStatus, GetCorrectNumber(0, 1));
         if (result.size())
         {
-            for (int id : result) { pipes.at(id).ShowInfo(); }
+            ViewObjects(result, PIPE);
             cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
+            unordered_set<int> numbers = GetEditNumbers(result, PIPE);
             EditPipes(numbers);
         }
         else cout << "Нет подходящих труб";
@@ -206,10 +253,10 @@ void GTS::Edit_ByParametr(const ObjectType obj){
         unordered_set<int> result = Find_By_Filter<Station, int>(stations, CheckByWorkshop, GetCorrectNumber(0, 100));
         if (result.size())
         {
-            for (int id : result) { stations.at(id).ShowInfo(); }
+            ViewObjects(result, STATION);
             cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
-            EditCS(numbers);
+            unordered_set<int> numbers = GetEditNumbers(result, STATION);
+            EditStations(numbers);
         }
         else cout << "Нет подходящих станций";
         break;
@@ -219,8 +266,14 @@ void GTS::Edit_ByParametr(const ObjectType obj){
 }
 
 //---------------Удаление-------------------
-void GTS::DeletePipes(unordered_set<int>& IDs) { for (auto& id : IDs) pipes.erase(id); }
-void GTS::DeleteStations(unordered_set<int>& IDs) { for (auto& id : IDs) stations.erase(id); }
+void GTS::DeletePipes(unordered_set<int>& IDs) { 
+    for (auto& id : IDs) pipes.erase(id); 
+    cout << endl << "Трубы удалены!" << endl;
+}
+void GTS::DeleteStations(unordered_set<int>& IDs) { 
+    for (auto& id : IDs) stations.erase(id); 
+    cout << endl << "Станции удалены!" << endl;
+}
 
 void GTS::Delete_ByName(const ObjectType obj)
 {
@@ -232,9 +285,9 @@ void GTS::Delete_ByName(const ObjectType obj)
         unordered_set<int> result = Find_By_Filter<Pipe, string>(pipes, CheckByName, name);
         if (result.size())
         {
-            for (int id : result) { pipes.at(id).ShowInfo(); }
-            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
+            ViewObjects(result, PIPE);
+            cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result, PIPE);
             DeletePipes(numbers);
         }
         else cout << "Нет подходящих труб";
@@ -247,9 +300,9 @@ void GTS::Delete_ByName(const ObjectType obj)
         unordered_set<int> result = Find_By_Filter<Station, string>(stations, CheckByName, name);
         if (result.size())
         {
-            for (int id : result) { stations.at(id).ShowInfo(); }
-            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
+            ViewObjects(result, STATION);
+            cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result, STATION);
             DeleteStations(numbers);
         }
         else cout << "Нет подходящих станций";
@@ -268,9 +321,9 @@ void GTS::Delete_ByParametr(const ObjectType obj) {
         unordered_set<int> result = Find_By_Filter<Pipe, bool>(pipes, CheckByStatus, GetCorrectNumber(0, 1));
         if (result.size())
         {
-            for (int id : result) { pipes.at(id).ShowInfo(); }
-            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
+            ViewObjects(result, PIPE);
+            cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result, PIPE);
             DeletePipes(numbers);
         }
         else cout << "Нет подходящих труб";
@@ -282,15 +335,83 @@ void GTS::Delete_ByParametr(const ObjectType obj) {
         unordered_set<int> result = Find_By_Filter<Station, int>(stations, CheckByWorkshop, GetCorrectNumber(0, 100));
         if (result.size())
         {
-            for (int id : result) { stations.at(id).ShowInfo(); }
-            cout << "Изменить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
-            unordered_set<int> numbers = GetEditNumbers(result);
+            ViewObjects(result, STATION);
+            cout << "Удалить все(0) или введите нужные ID(введите нужные ID по одному, для окончания выбора введите 0)" << endl;
+            unordered_set<int> numbers = GetEditNumbers(result, STATION);
             DeleteStations(numbers);
         }
         else cout << "Нет подходящих станций";
         break;
     }
     default: { return; }
+    }
+}
+
+//---------------Граф-------------------
+
+void GTS::ViewСonnections() { 
+    ENTER;
+    graph.ViewConnections(); 
+}
+
+void GTS::CreateСonnection() {
+    if (stations.size() < 2) { cout << "Недостаточно станций для создания связи!" << endl; return; }
+    ViewStations();
+    cout << "Введите ID начальной станции" << endl;
+    int from, to, id;
+    from = InputExistIdStation();
+    cout << "Введите ID конечной станции" << endl;
+    to = InputExistIdStation();
+
+    if (graph.UncorrectNodes(from,  to)) { return; }
+
+    cout << "Введите диаметр трубы, которой вы хотите соединить станции:" << endl;
+    vector<int> sizes = Pipe::GetSizes();
+    int diameter = SwitchNumber(sizes);
+    unordered_set<int> result = Find_By_Filter<Pipe, int>(pipes, CheckByDiameter, diameter);
+    result = GetFreePipes(result);
+
+    if (!result.size()) {
+        cout << "Труб с указанным диаметром не найдено. Хотите создать такую трубу?(0 - нет(выйти), 1 - да)" << endl;
+        if (!GetCorrectNumber(0, 1)) { return; }
+        else {
+            Pipe pipe;
+            CreateStateDiameterPipe(pipe,diameter);
+            id = pipe.GetID();
+            graph.CreateEdge(from, to, id);
+            return;
+        }
+    }
+
+    ViewObjects(result, PIPE);
+    cout << "Выберете ID трубы для связи:";
+    do {
+        id = GetCorrectNumber(MIN_ID_PIPE, Pipe::GetMaxId());
+        if (!result.contains(id)) { cout << "Нет такого ID среди найденных труб! Введите ещё раз." << endl; }
+    } while (!result.contains(id));
+
+    graph.CreateEdge(from, to, id);
+    return;
+}
+
+void GTS::DeleteСonnection() {
+    if (graph.edges.empty()) { cout << "Нет доступных связей!"; return; }
+    graph.ViewConnections();
+    cout << "Введите ID удаляемой связи:" << endl;
+    int id;
+    do {
+        id = GetCorrectNumber(MIN_ID_PIPE, Pipe::GetMaxId());
+        if (!graph.edges.contains(id)) { cout << "Нет такого ID среди найденных труб! Введите ещё раз." << endl; }
+    } while (!graph.edges.contains(id));
+    graph.DeleteEdge(id);
+}
+
+void GTS::TopologicalSort() {
+    vector<int> result = graph.TopologicalSort();
+    if (!result.size()) { return; }
+    cout << "Топологическая сортировка: ";
+    for (auto& i : result) {
+        cout << i << " ";
     }
 }
 
@@ -304,9 +425,10 @@ void GTS::SaveConfiguration()
 
         ofstream file;
         file.open(name, ios::out);
-        file << pipes.size() << " " << stations.size() << endl;
+        file << pipes.size() << " " << stations.size() << " " << graph.edges.size() << endl;
         for (auto& pipe : pipes) { file << pipe.second; }
         for (auto& station : stations) { file << station.second; };
+        file << graph;
         file.close();
         ENTER;
         cout << "Успешно сохранено!" << endl;
@@ -332,13 +454,14 @@ void GTS::LoadConfiguration() {
 
     pipes.clear();
     stations.clear();
+    graph.edges.clear();
     Pipe pipe;
     Station station;
-    int count_pipes;
-    int count_cs;
+    Edge edge;
+    int count_pipes, count_cs, count_edges;
 
     file.open(names[save-1]);
-    file >> count_pipes >> count_cs;
+    file >> count_pipes >> count_cs >> count_edges;
 
     while(count_pipes--)
     {
@@ -350,9 +473,12 @@ void GTS::LoadConfiguration() {
         file >> station;
         stations.insert({ station.GetID(), station });
     }
+    while (count_edges--)
+    {
+        file >> edge;
+        graph.edges.insert({ edge.pipe, edge });
+    }
 
     cout << "Файлы загружены!\n" << endl;
     file.close();
-
-
 }

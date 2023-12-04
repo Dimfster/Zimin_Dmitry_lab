@@ -20,17 +20,17 @@ public:
 
     void WriteInfo();
 
-    void ShowInfo();
+    void WriteInfo_WithStateDiameter(int diameter);
 
-    void Edit();
+    void ShowInfo();
 
     void Edit(const Action);
 
+    static inline std::vector<int> GetSizes() { return possible_diameters; };
+    int GetDiameter() { return diameter; };
     static int GetMaxId() { return MaxId; };
-
     int GetID() { return ID; };
 
-
-    friend std::ofstream& operator << (std::ofstream& out, const Pipe& pipe);
+    friend std::ofstream& operator << (std::ofstream& file, const Pipe& pipe);
     friend std::ifstream& operator >> (std::ifstream& file, Pipe& pipe);
 };
