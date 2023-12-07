@@ -3,7 +3,7 @@
 
 class Pipe 
 {
-    float length;
+    double length;
     int diameter;
     int ID;
     static int MaxId;
@@ -27,9 +27,11 @@ public:
     void Edit(const Action);
 
     static inline std::vector<int> GetSizes() { return possible_diameters; };
-    int GetDiameter() { return diameter; };
+    int GetDiameter() const { return diameter; };
+    double GetLenght()  const { return length; };
     static int GetMaxId() { return MaxId; };
-    int GetID() { return ID; };
+    int GetID() const { return ID; };
+
 
     friend std::ofstream& operator << (std::ofstream& file, const Pipe& pipe);
     friend std::ifstream& operator >> (std::ifstream& file, Pipe& pipe);

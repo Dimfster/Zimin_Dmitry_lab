@@ -6,8 +6,6 @@
 #define MIN_ID_PIPE  1
 #define MIN_ID_STATION 1001
 
-
-
 using namespace std;
 
 
@@ -33,8 +31,6 @@ bool CheckByWorkshop(Station& station, int cent_non_active) {
     return station.GetUnactiveWorkshop() >= cent_non_active;
 }
 
-
-
 template <typename Element, typename Parametr>
 unordered_set<int> Find_By_Filter(unordered_map<int, Element>& elements, Filter<Element, Parametr> filter, Parametr parametr)
 {
@@ -46,6 +42,7 @@ unordered_set<int> Find_By_Filter(unordered_map<int, Element>& elements, Filter<
     }
     return result;
 }
+
 
 //---------------Утилиты-------------------
 
@@ -65,6 +62,15 @@ bool GTS::HasObject(const ObjectType obj)
     }
     default: {return false;}
     }
+}
+
+int GTS::InputExistIdStation() {
+    int id;
+    do {
+        id = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
+        if (!stations.contains(id)) { cout << "Нет такой станции!" << endl; }
+    } while (!stations.contains(id));
+    return id;
 }
 
 unordered_set<int> GTS::GetIDs(const ObjectType obj)
@@ -101,21 +107,13 @@ unordered_set<int> GTS::GetEditNumbers(unordered_set<int>& result, const GTS::Ob
 unordered_set<int> GTS::GetFreePipes(const unordered_set<int>& IDs){
     unordered_set<int> free_IDs;
     for (auto& id : IDs) {
-        if (!graph.edges.contains(id)) {
+        if (!connections.edges.contains(id)) {
             free_IDs.insert(id);
         }
     }
     return free_IDs;
 }
 
-int GTS::InputExistIdStation() {
-    int id;
-    do {
-        id = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
-        if (!stations.contains(id)) { cout << "Нет такой станции!" << endl; }
-    } while (!stations.contains(id));
-    return id;
-}
 
 //---------------Создание объектов-------------------
 void GTS::CreatePipe(){
@@ -158,7 +156,7 @@ void GTS::ViewStations()
     }
 }
 
-void GTS::ViewObjects(std::unordered_set<int> result, const GTS::ObjectType obj)
+void GTS::ViewObjects(unordered_set<int> result, const GTS::ObjectType obj)
 {
     switch (obj) {
     case PIPE: { for (int id : result) { pipes.at(id).ShowInfo(); }; return; }
@@ -166,6 +164,7 @@ void GTS::ViewObjects(std::unordered_set<int> result, const GTS::ObjectType obj)
     default: { return; }
     }
 }
+
 
 //---------------Редактирование-------------------
 void GTS::EditPipes(unordered_set<int>& IDs)
@@ -351,7 +350,7 @@ void GTS::Delete_ByParametr(const ObjectType obj) {
 
 void GTS::ViewСonnections() { 
     ENTER;
-    graph.ViewConnections(); 
+    connections.ViewConnections();
 }
 
 void GTS::CreateСonnection() {
@@ -363,7 +362,7 @@ void GTS::CreateСonnection() {
     cout << "Введите ID конечной станции" << endl;
     to = InputExistIdStation();
 
-    if (graph.UncorrectNodes(from,  to)) { return; }
+    if (connections.UncorrectNodes(from,  to)) { return; }
 
     cout << "Введите диаметр трубы, которой вы хотите соединить станции:" << endl;
     vector<int> sizes = Pipe::GetSizes();
@@ -378,7 +377,7 @@ void GTS::CreateСonnection() {
             Pipe pipe;
             CreateStateDiameterPipe(pipe,diameter);
             id = pipe.GetID();
-            graph.CreateEdge(from, to, id);
+            connections.CreateConnection(from, to, id);
             return;
         }
     }
@@ -390,31 +389,49 @@ void GTS::CreateСonnection() {
         if (!result.contains(id)) { cout << "Нет такого ID среди найденных труб! Введите ещё раз." << endl; }
     } while (!result.contains(id));
 
-    graph.CreateEdge(from, to, id);
+    connections.CreateConnection(from, to, id);
     return;
 }
 
 void GTS::DeleteСonnection() {
-    if (graph.edges.empty()) { cout << "Нет доступных связей!"; return; }
-    graph.ViewConnections();
+    if (connections.Empty()) { cout << "Нет доступных связей!"; return; }
+    connections.ViewConnections();
     cout << "Введите ID удаляемой связи:" << endl;
     int id;
     do {
         id = GetCorrectNumber(MIN_ID_PIPE, Pipe::GetMaxId());
-        if (!graph.edges.contains(id)) { cout << "Нет такого ID среди найденных труб! Введите ещё раз." << endl; }
-    } while (!graph.edges.contains(id));
-    graph.DeleteEdge(id);
+        if (!connections.edges.contains(id)) { cout << "Нет такого ID среди найденных труб! Введите ещё раз." << endl; }
+    } while (!connections.edges.contains(id));
+    connections.DeleteConnection(id);
 }
 
 void GTS::TopologicalSort() {
+    Graph graph = Graph(connections.edges, connections.nodes, pipes);
     vector<int> result = graph.TopologicalSort();
-    if (!result.size()) { return; }
+    if (!result.size()) { cout << "Топологическая сортировка: - "; return; }
     cout << "Топологическая сортировка: ";
     for (auto& i : result) {
         cout << i << " ";
     }
 }
 
+
+void GTS::ShortestPath() {
+    Graph graph = Graph(connections.edges, connections.nodes, pipes);
+    cout << "Введите начальную вершину пути:" << endl;
+    int StartNode = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
+
+    cout << "Введите конечную вершину пути:" << endl;
+    int EndNode = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
+
+    vector<int> result = graph.Metod_Deikstra(StartNode, EndNode);
+    if (!result.size()) { cout << "Путь: - "; return; }
+    cout << "Путь: ";
+    for (auto& i : result) {
+        cout << i << " -> ";
+    }
+    cout << "end" << endl;
+}
 //---------------Сохранение-Загрузка-------------------
 void GTS::SaveConfiguration() 
 {
@@ -425,10 +442,10 @@ void GTS::SaveConfiguration()
 
         ofstream file;
         file.open(name, ios::out);
-        file << pipes.size() << " " << stations.size() << " " << graph.edges.size() << endl;
+        file << pipes.size() << " " << stations.size() << " " << connections.edges.size() << endl;
         for (auto& pipe : pipes) { file << pipe.second; }
         for (auto& station : stations) { file << station.second; };
-        file << graph;
+        file << connections;
         file.close();
         ENTER;
         cout << "Успешно сохранено!" << endl;
@@ -454,14 +471,14 @@ void GTS::LoadConfiguration() {
 
     pipes.clear();
     stations.clear();
-    graph.edges.clear();
+    connections.Clear();
     Pipe pipe;
     Station station;
     Edge edge;
-    int count_pipes, count_cs, count_edges;
+    int count_pipes, count_cs, count_connectios;
 
     file.open(names[save-1]);
-    file >> count_pipes >> count_cs >> count_edges;
+    file >> count_pipes >> count_cs >> count_connectios;
 
     while(count_pipes--)
     {
@@ -473,10 +490,12 @@ void GTS::LoadConfiguration() {
         file >> station;
         stations.insert({ station.GetID(), station });
     }
-    while (count_edges--)
+    while (count_connectios--)
     {
         file >> edge;
-        graph.edges.insert({ edge.pipe, edge });
+        connections.edges.insert( {edge.pipe, edge });
+        connections.nodes.insert({ edge.from });
+        connections.nodes.insert({ edge.to });
     }
 
     cout << "Файлы загружены!\n" << endl;

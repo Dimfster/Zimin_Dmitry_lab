@@ -1,15 +1,19 @@
 #pragma once
 #include "Utilites.h"
+#include "Pipe.h"
+#include <map>
 #include <unordered_map>
 #include <set>
 
 class Graph;
 class GTS;
+class Connections;
 
 class Edge
 {
 	friend Graph;
 	friend GTS;
+	friend Connections;
 	friend std::ofstream& operator << (std::ofstream& file, const Edge& edge);
 	friend std::ifstream& operator >> (std::ifstream& file, Edge& edge);
 public:
@@ -24,27 +28,22 @@ class Graph
 {
 	friend GTS;
 public:
-	Graph() {};
-	bool UncorrectNodes(int from, int to);
-	void ViewConnections();
-	void CreateEdge(int from, int to, int id);
-	void DeleteEdge(int id);
-
+	Graph(const std::unordered_map<int, Edge>& edges, const std::set<int> nodes, const std::unordered_map<int, Pipe>& pipes);
 	std::vector<int> TopologicalSort();
-
-	friend std::ofstream& operator << (std::ofstream& out, const Graph& graph);
+	std::vector<int> Metod_Deikstra(int StartNode, int EndNode);
 
 private:
-	std::vector< std::vector<int> > CreateAdjMatrix(std::vector<std::vector<int>>& adj_matrix);
-
-	bool DFS_Cycle(int node, std::vector<bool>& visited , int);
+	bool DFS_Cycle(int, std::vector<bool>&, std::vector<bool>&);
 	void DFS_Sort(int v, std::vector<bool>& visited, std::vector<int>& nodes);
 
 	bool Has—ycle();
-	std::set<int> nodes;
+	int GetIndex(int node);
+	bool Conteins(int Node);
+	std::map<int, int> nodes;
 	std::unordered_map<int, Edge> edges;
-	std::vector<std::vector<int>> adj_matrix;
-	int sizeGraph;	
+	std::vector<std::vector<double>> capacity;
+	std::vector<std::vector<double>> adj_weight;
+	int SizeGraph;	
 };
 
 

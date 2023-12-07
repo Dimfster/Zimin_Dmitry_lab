@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "Pipe.h"
 #include "Station.h"
+#include "Connections.h"
 #include "Graph.h"
 
 class GTS
@@ -40,6 +41,7 @@ public:
     void CreateÑonnection();
     void DeleteÑonnection();
     void TopologicalSort();
+    void ShortestPath();
 
     //---------------Ñîõğàíåíèå-Çàãğóçêà-------------------
     void SaveConfiguration();
@@ -49,8 +51,7 @@ public:
 private:
     std::unordered_map<int, Pipe> pipes;
     std::unordered_map<int, Station> stations;
-    struct edges;
-    Graph graph;
+    Connections connections;
 
     int InputExistIdStation();
     std::unordered_set<int> GetFreePipes(const std::unordered_set<int>& IDs);

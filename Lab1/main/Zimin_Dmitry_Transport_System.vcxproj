@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Connections.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Station.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="Pipe.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Connections.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Station.h" />

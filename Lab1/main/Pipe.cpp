@@ -89,6 +89,7 @@ ofstream& operator << (ofstream& file, const Pipe& pipe) {
     return file;
 }
 
+
 ifstream& operator >> (ifstream& file, Pipe& pipe) {
     if (file.is_open()) {
         file >> ws;

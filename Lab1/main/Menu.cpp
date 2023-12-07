@@ -268,13 +268,6 @@ void Delete_Menu(GTS& GasSystem)
 }
 
 //---------------Удаление-------------------
-void Create_Connection(GTS& GasSystem) {
-    GasSystem.CreateСonnection();
-}
-
-void Delete_Connection() {
-
-}
 
 void Graph_Menu(GTS& GasSystem) {
     ENTER;
@@ -282,13 +275,15 @@ void Graph_Menu(GTS& GasSystem) {
         "2. Добавить связь\n" <<
         "3. Удалить связь\n" <<
         "4. Топологическая сортировка\n" <<
+        "5. Найти кратчайший путь\n" <<
         "0. Выход\n" << endl;
 
-    switch (GetCorrectNumber(0, 4)) {
+    switch (GetCorrectNumber(0, 5)) {
         case 1: { GasSystem.ViewСonnections(); break; }
         case 2: { GasSystem.CreateСonnection(); break; }
         case 3: { GasSystem.DeleteСonnection(); break; }
         case 4: { GasSystem.TopologicalSort(); break; }
+        case 5: { GasSystem.ShortestPath(); break; }
         case 0: { return; }
     }
 }
