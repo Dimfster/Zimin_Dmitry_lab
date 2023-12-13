@@ -235,7 +235,7 @@ void Delete_Stations(GTS& GasSystem)
 
     switch (GetCorrectNumber(0, 2))
     {
-        case 1: { DeleteOnePipe(GasSystem); break; }
+        case 1: { DeleteOneStation(GasSystem); break; }
         case 2: {
             cout << "Âûáåðåòå ôèëüòð ïîèñêà:" <<
                 "\n1.Ïî èìåíè" <<
@@ -276,14 +276,16 @@ void Graph_Menu(GTS& GasSystem) {
         "3. Óäàëèòü ñâÿçü\n" <<
         "4. Òîïîëîãè÷åñêàÿ ñîðòèðîâêà\n" <<
         "5. Íàéòè êðàò÷àéøèé ïóòü\n" <<
+        "6. Ìàêñèìàëüíûé ïîòîê\n" <<
         "0. Âûõîä\n" << endl;
 
-    switch (GetCorrectNumber(0, 5)) {
+    switch (GetCorrectNumber(0, 6)) {
         case 1: { GasSystem.ViewÑonnections(); break; }
         case 2: { GasSystem.CreateÑonnection(); break; }
         case 3: { GasSystem.DeleteÑonnection(); break; }
         case 4: { GasSystem.TopologicalSort(); break; }
         case 5: { GasSystem.ShortestPath(); break; }
+        case 6: { GasSystem.MaxFlow(); break; }
         case 0: { return; }
     }
 }

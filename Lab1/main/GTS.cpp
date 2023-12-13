@@ -19,8 +19,8 @@ bool CheckByName(T& element, string name) {
     return (element.name.find(name) != string::npos);
 }
 
-bool CheckByStatus(Pipe& pipe, bool in_repair) {
-    return pipe.in_repair == in_repair;
+bool CheckByStatus(Pipe& pipe, bool in_work) {
+    return pipe.in_work == in_work;
 }
 
 bool CheckByDiameter(Pipe& pipe, int diameter) {
@@ -266,11 +266,18 @@ void GTS::Edit_ByParametr(const ObjectType obj){
 
 //---------------Удаление-------------------
 void GTS::DeletePipes(unordered_set<int>& IDs) { 
-    for (auto& id : IDs) pipes.erase(id); 
+
+    for (auto& pipe_id : IDs) {
+        connections.DeleteConnection_ByPipeID(pipe_id);
+        pipes.erase(pipe_id);
+    }
     cout << endl << "Трубы удалены!" << endl;
 }
 void GTS::DeleteStations(unordered_set<int>& IDs) { 
-    for (auto& id : IDs) stations.erase(id); 
+    for (auto& station_id : IDs) {
+        connections.DeleteConnection_ByStationID(station_id);
+        stations.erase(station_id);
+    }
     cout << endl << "Станции удалены!" << endl;
 }
 
@@ -347,7 +354,6 @@ void GTS::Delete_ByParametr(const ObjectType obj) {
 }
 
 //---------------Граф-------------------
-
 void GTS::ViewСonnections() { 
     ENTER;
     connections.ViewConnections();
@@ -394,7 +400,11 @@ void GTS::CreateСonnection() {
 }
 
 void GTS::DeleteСonnection() {
-    if (connections.Empty()) { cout << "Нет доступных связей!"; return; }
+    if (connections.Empty()) {
+        cout << "Нет доступных связей!";
+        return;
+    }
+
     connections.ViewConnections();
     cout << "Введите ID удаляемой связи:" << endl;
     int id;
@@ -402,10 +412,12 @@ void GTS::DeleteСonnection() {
         id = GetCorrectNumber(MIN_ID_PIPE, Pipe::GetMaxId());
         if (!connections.edges.contains(id)) { cout << "Нет такого ID среди найденных труб! Введите ещё раз." << endl; }
     } while (!connections.edges.contains(id));
-    connections.DeleteConnection(id);
+    connections.DeleteConnection_ByPipeID(id);
 }
 
+
 void GTS::TopologicalSort() {
+    if (connections.Empty()) { cout << "Нет доступных связей!"; return; }
     Graph graph = Graph(connections.edges, connections.nodes, pipes);
     vector<int> result = graph.TopologicalSort();
     if (!result.size()) { cout << "Топологическая сортировка: - "; return; }
@@ -415,9 +427,11 @@ void GTS::TopologicalSort() {
     }
 }
 
-
 void GTS::ShortestPath() {
+    if (connections.Empty()) { cout << "Нет доступных связей!"; return; }
     Graph graph = Graph(connections.edges, connections.nodes, pipes);
+
+    connections.ViewConnections();
     cout << "Введите начальную вершину пути:" << endl;
     int StartNode = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
 
@@ -431,6 +445,22 @@ void GTS::ShortestPath() {
         cout << i << " -> ";
     }
     cout << "end" << endl;
+    cout << "Длина пути: " << graph.Lenght_ShortestPath(result) << endl;
+}
+
+void GTS::MaxFlow() {
+    if (connections.Empty()) { cout << "Нет доступных связей!"; return; }
+    Graph graph = Graph(connections.edges, connections.nodes, pipes);
+
+    connections.ViewConnections();
+    cout << "Введите начальную вершину пути:" << endl;
+    int StartNode = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
+
+    cout << "Введите конечную вершину пути:" << endl;
+    int EndNode = GetCorrectNumber(MIN_ID_STATION, Station::GetMaxId());
+
+    double result = graph.Ford_Fulkerson(StartNode, EndNode);
+    cout << "Максимальный поток: " << result << endl;
 }
 //---------------Сохранение-Загрузка-------------------
 void GTS::SaveConfiguration() 
@@ -462,7 +492,7 @@ void GTS::LoadConfiguration() {
     for (auto& name: filesystem::directory_iterator(path)) {
         count++;
         names.push_back(name);
-        cout << count << ". " << name << endl;
+        cout << count << ". " << name.path().filename() << endl;
     }
 
     ENTER;
@@ -493,9 +523,7 @@ void GTS::LoadConfiguration() {
     while (count_connectios--)
     {
         file >> edge;
-        connections.edges.insert( {edge.pipe, edge });
-        connections.nodes.insert({ edge.from });
-        connections.nodes.insert({ edge.to });
+        connections.Insert(edge);
     }
 
     cout << "Файлы загружены!\n" << endl;

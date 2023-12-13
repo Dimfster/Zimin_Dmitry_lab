@@ -21,12 +21,12 @@ ifstream& operator >> (std::ifstream& file, Edge& edge) {
 }
 
 // Про граф
-Graph::Graph(const unordered_map<int, Edge>& edges, const set<int> nodes, const unordered_map<int, Pipe>& pipes) : edges(edges) {
-	//, nodes(nodes)
+Graph::Graph(const unordered_map<int, Edge>& edges, const set<int>& nodes, const unordered_map<int, Pipe>& pipes) : edges(edges) {
 	int count = 0;
 	for (int node: nodes) {
 		this->nodes.insert({ count, node });
 		count++;
+
 	}
 	SizeGraph = nodes.size();
 	capacity.resize(SizeGraph, vector<double>(SizeGraph, 0.0));
@@ -34,7 +34,7 @@ Graph::Graph(const unordered_map<int, Edge>& edges, const set<int> nodes, const 
 	for (auto& [pipe_id, edge] : edges) {
 		auto i = GetIndex(edge.from);
 		auto j = GetIndex(edge.to);
-		//capacity[i][j] = pipes.at(pipe_id).get_capasity();
+		capacity[i][j] = pipes.at(pipe_id).GetCapacity();
 		adj_weight[i][j] = pipes.at(pipe_id).GetLenght();
 	}
 }
@@ -66,7 +66,7 @@ bool Graph::HasСycle() {
 	return false;
 }
 
-int Graph::GetIndex(int vertice)
+int Graph::GetIndex(int vertice) const
 {
 	for (auto& [index, node] : nodes) {
 		if (node == vertice) { return index; }
@@ -74,7 +74,7 @@ int Graph::GetIndex(int vertice)
 	return INT16_MAX;
 }
 
-bool Graph::Conteins(int Node)
+bool Graph::Conteins(int Node) const
 {
 	for (auto& [index, node] : nodes) {
 		if (node == Node) { return true; }
@@ -117,7 +117,7 @@ vector<int> Graph::TopologicalSort(){
 	return result;
 }
 
-vector<int> Graph::Metod_Deikstra(int StartNode, int EndNode) {
+vector<int> Graph::Metod_Deikstra(int StartNode, int EndNode) const {
 	if (edges.empty()) {
 		cout << endl << "У графа нет ребёр. Найти кратчайший путь невозможно" << endl;
 		return vector<int>();
@@ -158,10 +158,102 @@ vector<int> Graph::Metod_Deikstra(int StartNode, int EndNode) {
 	}
 
 	vector<int> path;
-	for (int node = EndNode; node != -1; node = prev[node]) {
-		path.push_back(nodes.at(node));
+	int current_node = EndNode;
+	while (current_node != StartNode) {
+		path.push_back(nodes.at(current_node));
+		if (prev[current_node] != -1) {
+			current_node = prev[current_node];
+		}
+		else {
+			cout << "Нет пути между заданными вершинами" << endl;
+			return vector<int>();
+		}
 	}
+	path.push_back(nodes.at(StartNode));
 	reverse(path.begin(), path.end());
 
 	return path;
+}
+
+double Graph::Lenght_ShortestPath(std::vector<int>& path)
+{
+	double length = 0.0;
+	if (path.size() < 2) { return length; }
+
+	for (size_t i = 0; i < path.size() - 1; ++i) {
+		int start = GetIndex(path[i]);
+		int end = GetIndex(path[i + 1]);
+
+		if (start >= SizeGraph || end >= SizeGraph || !adj_weight[start][end]) {
+			cout << "Нет ребра между заданными вершинами " << endl;
+			return INT64_MAX;
+		}
+		length += adj_weight[start][end];
+	}
+	return length;
+}
+
+bool Graph::BFS_MaxFlow(vector<vector<double>>& cap, int StartNode, int EndNode, vector<int>& parent) const {
+	vector<bool> visited(SizeGraph, false);
+	queue<int> q;
+	q.push(StartNode);
+	visited[StartNode] = true;
+	parent[StartNode] = -1;
+
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+
+		for (int v = 0; v < SizeGraph; v++) {
+			if (!visited[v] && cap[u][v] > 0) {
+				if (v == EndNode) {
+					parent[v] = u;
+					return true;
+				}
+				parent[v] = u;
+				visited[v] = true;
+				q.push(v);
+
+			}
+		}
+	}
+	return false;
+}
+
+double Graph::Ford_Fulkerson(int StartNode, int EndNode) const{
+	if (edges.empty()) {
+		cout << endl << "У графа нет ребёр. Найти максимальный поток невозможно" << endl;
+		return 0;
+	}
+	else if (!Conteins(StartNode) && !Conteins(EndNode)) {
+		cout << endl << "В графе нет станций с таким ID. Найти максимальный поток невозможно" << endl;
+		return 0;
+	}
+
+	StartNode = GetIndex(StartNode);
+	EndNode = GetIndex(EndNode);
+
+	vector<vector<double>> cap = capacity;
+	vector<int> parent(SizeGraph, -1);
+	double maxFlow = 0.0;
+
+	while (BFS_MaxFlow(cap, StartNode, EndNode, parent)) {
+		double pathFlow = DBL_MAX;
+
+		for (int v = EndNode; v != StartNode; v = parent[v]) {
+			int u = parent[v];
+			pathFlow = min(pathFlow, cap[u][v]);
+		}
+
+		for (int v = EndNode; v != StartNode; v = parent[v]) {
+			int u = parent[v];
+			cap[u][v] -= pathFlow;
+			cap[v][u] += pathFlow;
+
+		}
+
+		maxFlow += pathFlow;
+	}
+
+	return maxFlow;
 }

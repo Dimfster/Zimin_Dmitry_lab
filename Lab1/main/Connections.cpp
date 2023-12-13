@@ -4,16 +4,19 @@ using namespace std;
 
 bool Connections::Empty()
 {
-    if (edges.size()) { return true; }
-    else { return false; }
+    if (edges.size()) { return false; }
+    else { return true; }
+}
+
+void Connections::Insert(Edge& edge) {
+    edges.insert({ edge.pipe, edge });
+    nodes.insert({ edge.from });
+    nodes.insert({ edge.to });
 }
 
 bool Connections::UncorrectNodes(int from, int to)
 {
-    if (nodes.contains(from) && nodes.contains(to)) {
-        cout << "Станции уже задействованы!" << endl; return true;
-    }
-    else if (from == to) {
+    if (from == to) {
         cout << "Нельзя посторить связь к той же станции!" << endl; return true;
     }
     else { return false; }
@@ -41,13 +44,25 @@ void Connections::ViewConnections()
     }
 }
 
-void Connections::DeleteConnection(int id) {
-    if (edges.contains(id)) {
-        Edge edge = edges.at(id);
+void Connections::DeleteConnection_ByPipeID(int pipe_id) {
+    if (edges.contains(pipe_id)) {
+        edges.erase(pipe_id);
+        cout << "Связь " << pipe_id << " удалена\n";
         ResetNodes();
-        edges.erase(id);
-        cout << endl << "Связь удалена!" << endl;
     }
+}
+
+void Connections::DeleteConnection_ByStationID(int station_id) {
+    vector<int> ID_edges;
+    for (auto& [pipe_id, edge] : edges) {
+        if (edge.from == station_id || edge.to == station_id) { ID_edges.push_back(pipe_id); }
+    }
+
+    for (int id : ID_edges) {
+        edges.erase(id);
+        cout << "Связь " << id << " удалена\n";
+    }
+    ResetNodes();
 }
 
 void Connections::ResetNodes()

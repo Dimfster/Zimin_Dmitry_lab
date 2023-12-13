@@ -42,6 +42,7 @@ public:
     void DeleteСonnection();
     void TopologicalSort();
     void ShortestPath();
+    void MaxFlow();
 
     //---------------Сохранение-Загрузка-------------------
     void SaveConfiguration();
